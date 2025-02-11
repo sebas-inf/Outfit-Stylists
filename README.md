@@ -1,3 +1,15 @@
+# Simple test with modified sample code using MongoDB and Mongoose.js
+- Install Mongodb Community Ed. on your computer, preferably with Compass for ease of viewing
+- Run mongod.exe with the --dbpath parameter set to the sample_database folder path
+    - This runs a local database connection with the data right inside the project.
+- install and run mongosh, and copy the connection string from there into index.js
+- run "node index.js" in the commandline to change the database with the provided sample code
+- You should see a new test database with kittens collection in it
+- Two kittens should be made, fluffy and terrible the cutest
+- Important kitten information should be printed in the console window.
+- You can use Compass GUI to easily view the changes to the database after doing View-Reload Data
+- Simply do Ctrl-c in the terminal in VS Code (on windows, or however you end terminal programs) to stop the program.
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
