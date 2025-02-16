@@ -1,10 +1,12 @@
 import mongoose, { SchemaType, SchemaTypes } from 'mongoose';
 import { connect, Schema, model } from 'mongoose';
 import fs from 'node:fs';
+import cors from 'cors';
 import express from 'express';
 
-const app = express()
-const port = 3000
+const app = express();
+app.use(cors());
+const port = 3000;
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
