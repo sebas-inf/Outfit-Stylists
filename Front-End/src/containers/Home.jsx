@@ -4,7 +4,7 @@ import { AiFillCloseCircle } from 'react-icons/ai';
 import { Link, Route, Routes } from 'react-router-dom';
 
 import { Sidebar, UserProfile } from '../components';
-import Items from '../components/Item'
+import Items from '../components/Item.jsx'
 import logo from '../assets/react.svg'
 
 const Home = () => {
