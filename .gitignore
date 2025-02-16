@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+mongod.lock
+WiredTiger.*
+metrics.*
+sample_database/WiredTiger.turtle
+sample_database/journal/*

@@ -1,5 +1,11 @@
+# Simple small database creation and routing query
+Simply run node src/database.js after setup described below, instead of index.
+Visit /user/wardrobe to find returned json describing several pieces of clothing,
+Visit /user/wardrobe/show to run an example of returning an html image element using the base64 string in the first wardrobe item.
+
 # Simple test with modified sample code using MongoDB and Mongoose.js
-- Install Mongodb Community Ed. on your computer, preferably with Compass for ease of viewing
+- Install Mongodb Community Ed. on your computer, preferably with Compass for ease of viewing, but you can also use
+    the Mongodb plugin in vscode
 - Run mongod.exe with the --dbpath parameter set to the sample_database folder path
     - This runs a local database connection with the data right inside the project.
 - install and run mongosh, and copy the connection string from there into index.js
