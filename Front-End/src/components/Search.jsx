@@ -2,30 +2,35 @@ import React, { useState, useEffect } from 'react';
 
 import MasonryLayout from './MasonryLayout';
 import Spinner from './Spinner';
-import client from '../client';
-import { feedQuery, searchQuery } from '../utils/data';
 
 const Search = ({searchTerm}) => {
   const [posts, setPosts] = useState();
   const [loading, setLoading] = useState(false);
 
+
   useEffect(() => {
     if (searchTerm) {
-      setLoading(true);
-      const query = searchQuery(searchTerm.toLowerCase());
-      client.fetch(query)
-        .then((data) => {
-          setPosts(data);
-          setLoading(false);
-        });
+        setLoading(true);
+        try{
+            fetch(`http://localhost:3000/search?query=${searchTerm}`)
+            .then((response) => response.json())
+            .then((data) => setPosts(data))
+            setLoading(false);
+        } catch (error) {
+            console.error("Error searching:", error);
+            setLoading(false);
+        }
     } else {
-      client.fetch(feedQuery())
-        .then((data) => {
-          setPosts(data);
-          setLoading(false);
-        });
+        try{
+            fetch(`http://localhost:3000/search?`)
+            .then((response) => response.json())
+            .then((data) => setPosts(data))
+        } catch (error) {
+            console.error("Error searching:", error);
+        }
     }
   }, [searchTerm]);
+
 
   return (
     <div>

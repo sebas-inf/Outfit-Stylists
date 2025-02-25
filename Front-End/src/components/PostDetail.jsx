@@ -4,9 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 import client from '../client';
-import urlFors from '../client';
 import Spinner from './Spinner';
-import { postDetailMorePostQuery, postDetailQuery } from '../utils/data';
 import MasonryLayout from './MasonryLayout';
 
 
@@ -17,22 +15,19 @@ const PostDetail = ({user}) => {
   const [addingComment, setAddingComment] = useState(false);
   const { postId } = useParams();
 
-  const fetchPostDetails = () => {
-    const query = postDetailQuery(postId);
-
-    if (query) {
-      client.fetch(`${query}`).then((data) => {
-        setPostDetail(data[0]);
-        console.log(data);
-        if (data[0]) {
-          const query1 = postDetailMorePostQuery(data[0]);
-          client.fetch(query1).then((res) => {
-            setPosts(res);
-          });
-        }
-      });
+  const fetchPostDetails = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/posts/${postId}`);
+      const data = await response.json();
+      setPostDetail(data);
+    } catch (error) {
+      console.error("Error fetching post details:", error);
     }
   };
+  
+  useEffect(() => {
+    fetchPostDetails();
+  }, [postId]);
 
   useEffect(() => {
     fetchPostDetails()

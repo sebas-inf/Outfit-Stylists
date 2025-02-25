@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { AiTwotoneDelete } from 'react-icons/ai';
-
-import { client, urlFor } from '../client'
 import { getUserDataFromToken } from '../utils';
 
 const Post = ({post}) => {
@@ -26,34 +23,32 @@ const Post = ({post}) => {
 
   const alreadyLiked = !!(like?.filter((item) => item?.postedBy?._id === user?.id)?.length); //double negative turn value into boolean
 
-  const likePost = (id) => {
+
+  const likePost = async (id) => {
     if (!alreadyLiked) {
-      setLikingPost(true);
-      client
-        .patch(id)
-        .setIfMissing({ like: [] })
-        .insert('after', 'like[-1]', [{
-          _key: uuidv4(),
-          userId: user?.id,
-          postedBy: {
-            _type: 'postedBy',
-            _ref: user?.id,
-          },
-        }])
-        .commit()
-        .then(() => {
-          window.location.reload();
-          setLikingPost(false);
-        });
-    }
+        setLikingPost(true);
+        try {
+            await fetch(`http://localhost:3000/posts/${id}/like`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: user?.id }),
+            });
+            window.location.reload();
+          } catch (error) {
+            console.error("Error liking post:", error);
+            window.location.reload();
+            setLikingPost(false);
+          }
+        }
   };
 
-  const deletePost = (id) => {
-    client
-      .delete(id)
-      .then(() => {
-        window.location.reload();
-      });
+  const deletePost = async (id) => {
+    try {
+      await fetch(`http://localhost:3000/posts/${id}`, { method: "DELETE" });
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
   };
 
   return (

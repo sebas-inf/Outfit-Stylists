@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
-
-import client from '../client';
 import Spinner from './Spinner';
 import { flares } from '../utils/data';
 
@@ -18,57 +16,57 @@ const CreatePost = ({user}) => {
 
   const navigate = useNavigate();
 
-  const uploadImage = (e) => {
-    const selectedFile = e.target.files[0];
-    // uploading asset to sanity
-    if (selectedFile.type === 'image/png' || selectedFile.type === 'image/svg' || selectedFile.type === 'image/jpeg' || selectedFile.type === 'image/gif' || selectedFile.type === 'image/tiff') {
-      setWrongImageType(false);
-      setLoading(true);
-      client.assets
-        .upload('image', selectedFile, { contentType: selectedFile.type, filename: selectedFile.name })
-        .then((document) => {
-          setImageAsset(document);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.log('Upload failed:', error.message);
-        });
+  const uploadImage = async (e) => {
+    setLoading(true);
+    if (selectedFile.type != 'image/png' && selectedFile.type != 'image/svg' && selectedFile.type != 'image/jpeg' && selectedFile.type != 'image/gif' && selectedFile.type != 'image/tiff') {
+        setWrongImageType(true);
+        setLoading(false);
     } else {
-      setLoading(false);
-      setWrongImageType(true);
+        const formData = new FormData();
+        formData.append("image", e.target.files[0]);
+        try {
+          const response = await fetch("http://localhost:3000/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await response.json();
+          setImageAsset(data.imageUrl);
+          setLoading(false);    
+        } catch (error) {
+          console.error("Upload failed:", error);
+          setLoading(false)
+        }
     }
   };
 
-  const publishPost = () => {
+  const publishPost = async () => {
     if (title && caption && imageAsset?._id && flare) {
-      const doc = {
-        _type: 'post',
-        title, caption, flare,
-        image: {
-          _type: 'image',
-          asset: {
-            _type: 'reference',
-            _ref: imageAsset?._id
-          }
-        },
-        userId: user?._id,
-        postedBy: {
-          _type: 'postedBy',
-          _ref: user?._id,
-        },
-      };
-      client.create(doc)
-        .then(() => {
-          navigate('/');
+      try {
+        const response = await fetch("http://localhost:3000/posts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            caption,
+            category: flare,
+            image: imageAsset,
+            userId: user?.id,
+          }),
         });
-    } else {
-      setDisplayInvalidFieldsW(true);
+  
+        if (response.ok) {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error creating post:", error);
+        setDisplayInvalidFieldsW(true);
       setTimeout(() => {
         setDisplayInvalidFieldsW(false);
       }, 2000);
+      }
     }
   };
-
 
   return (
     <div className='flex flex-col justify-center items-center mt-5 lg:h-4/5'>
