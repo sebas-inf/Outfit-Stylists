@@ -1,5 +1,6 @@
 import mongoose, { SchemaType, SchemaTypes } from 'mongoose';
 import { connect, Schema, model } from 'mongoose';
+import multer from 'multer';
 import fs from 'node:fs';
 import cors from 'cors';
 import express from 'express';
@@ -7,6 +8,7 @@ import express from 'express';
 // Set up expresss app and routes
 const app = express();
 app.use(cors());
+app.use(express.json({limit: '50mb'}));
 const port = 3000;
 
 app.get('/', (req, res) => {
@@ -40,9 +42,17 @@ app.get('/user/wardrobe/showexample', async (req, res) => {
     const wardrobe = await findItemsInWardrobe();
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from('<img style="width: 200px" src="data:image/png;base64,' +
-    wardrobe[0].photo + '"'
+    wardrobe[1].photo + '"'
     +' alt="Photo of a piece of clothing" />'));
 });
+
+app.post('/user/sendarticle', async (req, res) => {
+    await connectToDB();
+    await setUpTestDB().catch(err => console.log(err));
+    res.send('Article information recieved!')
+    console.log("recieved!")
+    insertNewArticle(req.body.username,req.body.wardrobeName, req.body.articleData);
+  })
 
 // Setup Schemata
 const ObjID = Schema.Types.ObjectId;
@@ -197,17 +207,26 @@ async function findItemsInWardrobe() {
     const foundUser = await User.findOne({});
     const foundWardrobe = await Wardrobe.findById(foundUser.wardrobeCollection[0]).exec();
     const foundItems = await Article.find({wardrobeID : foundWardrobe._id}).lean().exec();
+    foundItems.forEach((w) => {
+        w['username'] = foundUser.username;
+        w['wardrobeName'] = foundWardrobe.name;
+        delete w['_id'];
+        delete w['wardrobeID'];
+    });
 
     return foundItems;
 }
 
-async function insertNewArticle(userID, wardrobeName, articleInfo) {
-    const foundUser = await User.findById(userID);
-    const foundWardrobe = await Wardrobe.find({
-         userID: foundUser.wardrobeCollection[0], 
-         name : wardrobeName
-        }).exec();
-    articleInfo['wardrobeID'] = foundWardrobe._id;
-    const newArt = await new Article(articleInfo).save();
+async function insertNewArticle(userName, wardrobeName, articleInfo) {
+    if (!(await Article.exists({name : articleInfo.name}))) {
+        const foundUser = await User.findOne({username : userName}).exec();
+        const foundWardrobe = await Wardrobe.exists({
+            userID: foundUser._id, 
+            name : wardrobeName
+            });
+        console.log(foundWardrobe);
+        articleInfo['wardrobeID'] = foundWardrobe._id;
+        const newArt = await new Article(articleInfo).save();
+    }
 }
 
