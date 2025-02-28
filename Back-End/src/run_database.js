@@ -1,6 +1,5 @@
 import mongoose, { SchemaType, SchemaTypes } from 'mongoose';
 import { connect, Schema, model } from 'mongoose';
-import multer from 'multer';
 import fs from 'node:fs';
 import cors from 'cors';
 import express from 'express';
@@ -121,11 +120,7 @@ async function setUpTestDB() {
         const war = new Wardrobe({ userID: usr._id, name: "Example" });
         usr.wardrobeCollection.push(war._id);
 
-        const photoPath = "../example_photos/";
-        var filelist = [];
-        fs.readdir(photoPath, (err, files) => {
-            console.log(files);
-        });
+        const photoPath = "Back-End/example_photos/";
         var infoObj = [
             {
                 wardrobeID : war._id,
@@ -201,7 +196,7 @@ async function setUpTestDB() {
                 mainmaterial: "Cotton",
                 maincolor: "Red",
                 usage: Math.floor(Math.random() * 100),
-                photo: fs.readFileSync(photoPath + 'hat2.png').toString('base64')
+                photo: fs.readFileSync(photoPath + 'scarf1.png').toString('base64')
             },
             {
                 wardrobeID: war._id,
