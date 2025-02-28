@@ -121,7 +121,11 @@ async function setUpTestDB() {
         const war = new Wardrobe({ userID: usr._id, name: "Example" });
         usr.wardrobeCollection.push(war._id);
 
-        const photoPath = "../example_photos/"
+        const photoPath = "../example_photos/";
+        var filelist = [];
+        fs.readdir(photoPath, (err, files) => {
+            console.log(files);
+        });
         var infoObj = [
             {
                 wardrobeID : war._id,
@@ -197,7 +201,7 @@ async function setUpTestDB() {
                 mainmaterial: "Cotton",
                 maincolor: "Red",
                 usage: Math.floor(Math.random() * 100),
-                photo: fs.readFileSync(photoPath + 'scarf1.png').toString('base64')
+                photo: fs.readFileSync(photoPath + 'hat2.png').toString('base64')
             },
             {
                 wardrobeID: war._id,
