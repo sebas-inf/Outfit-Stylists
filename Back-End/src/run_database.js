@@ -120,7 +120,7 @@ async function setUpTestDB() {
         const war = new Wardrobe({ userID: usr._id, name: "Example" });
         usr.wardrobeCollection.push(war._id);
 
-        const photoPath = "Back-End/example_photos/";
+        const photoPath = "../example_photos/";
         var infoObj = [
             {
                 wardrobeID : war._id,
