@@ -77,6 +77,28 @@ app.post('/user/sendarticle', async (req, res) => {
     insertNewArticle(req.body.username,req.body.wardrobeName, req.body.articleData);
 });
 
+app.post('/user/createoutfit', async (req, res) => {
+    if (mongoose.connection.readyState != 1) {
+        res.send('connection closed!');
+        return;
+    }
+    await setUpTestDB().catch(err => console.log(err));
+    const outfit = insertNewOutfit(req.body.username, req.body.wardrobeName, req.body.outfitData);
+    res.send(outfit);
+});
+
+app.get('/user/wardrobe/outfits', async (req, res) => {
+    if (mongoose.connection.readyState != 1) {
+        res.send('connection closed!');
+        return;
+    }
+    await setUpTestDB().catch(err => console.log(err));
+    const outfits = await Outfit.find({}).exec();
+    delete outfits['_id'];
+    res.json(outfits);
+});
+
+
 // Setup Schemata
 const ObjID = Schema.Types.ObjectId;
 // Article of clothing
@@ -96,8 +118,16 @@ const articleSchema = new Schema({
 
 // Store a list of ids of clothing
 const outfitSchema = new Schema({
-    articleTable : [{ type: ObjID, ref: 'Article' }],
-    optionals : [{ type: ObjID, ref: 'Article' }]
+    name : String,
+    description : String,
+    wardrobeID : ObjID,
+    required_articles : {
+        type: [{ type: ObjID, ref: 'Article' }],
+        validate: [(array)=> {
+            return array.length >= 2;
+        }, "There must be two or more required articles!"]
+    },
+    optional_articles : [{ type: ObjID, ref: 'Article' }]
 }).set('toJSON', { virtuals: true });
 
 // Schema for wardrobes
@@ -126,6 +156,7 @@ const User = model('User', userSchema);
 const UserMData = model('UserMData', userMetadataSchema);
 const Wardrobe = model('Wardrobe', wardrobeSchema);
 const Article = model('Article', articleSchema);
+const Outfit = model('Outfit', outfitSchema);
 
 async function resetDB() {
     await mongoose.connection.dropDatabase();
@@ -144,7 +175,7 @@ async function setUpTestDB() {
         const war = new Wardrobe({ userID: usr._id, name: "Example" });
         usr.wardrobeCollection.push(war._id);
 
-        const photoPath = "Back-End/example_photos/";
+        const photoPath = "../example_photos/";
         var infoObj = [
             {
                 wardrobeID : war._id,
@@ -424,6 +455,7 @@ async function findItemsInWardrobe() {
     foundItems.forEach((w) => {
         w['username'] = foundUser.username;
         w['wardrobeName'] = foundWardrobe.name;
+        w['id'] = w._id;
         delete w['_id'];
         delete w['wardrobeID'];
     });
@@ -437,10 +469,27 @@ async function insertNewArticle(userName, wardrobeName, articleInfo) {
         const foundWardrobe = await Wardrobe.exists({
             userID: foundUser._id, 
             name : wardrobeName
-            });
+        });
         console.log(foundWardrobe);
         articleInfo['wardrobeID'] = foundWardrobe._id;
         const newArt = await new Article(articleInfo).save();
     }
 }
 
+async function insertNewOutfit(userName, wardrobeName, outfitInfo) {
+    var resultString = "1: Insertion failed - outfit already exists";
+    if (!(await Outfit.exists({name : outfitInfo.name}))) {
+        const foundUser = await User.findOne({username : userName}).exec();
+        const foundWardrobe = await Wardrobe.exists({
+            userID: foundUser._id, 
+            name : wardrobeName
+        });
+        console.log(outfitInfo);
+        outfitInfo['wardrobeID'] = foundWardrobe._id;
+        await new Outfit(outfitInfo).save()
+        .then(res => {resultString = "0: Successfully inserted outfit into database";})
+        .catch(err => {resultString = "2: Failure to insert outfit into database.";});
+    }
+    console.log(resultString);
+    return resultString;
+}
