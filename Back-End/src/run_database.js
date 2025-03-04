@@ -10,6 +10,9 @@ app.use(cors());
 app.use(express.json({limit: '50mb'}));
 const port = 3000;
 
+// Set up connection
+const db = await mongoose.connect('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.9');
+
 app.get('/', (req, res) => {
     res.send('Root')
 })
@@ -21,14 +24,29 @@ console.log(`Listening on localhost:${port}`)
 
 // Just connect and set up an example database
 app.use('/connect', async (req, res) => {
-    res.send('connecting...');
-    await connectToDB();
+    if (mongoose.connection.readyState != 1) {
+        res.send('connection closed!');
+        return;
+    }
     await setUpTestDB().catch(err => console.log(err));
+})
+
+app.use('/reset', async (req, res) => {
+    if (mongoose.connection.readyState != 1) {
+        res.send('connection closed!');
+        return;
+    }
+    await resetDB();
+    await setUpTestDB().catch(err => console.log(err));
+    res.send('reset!');
 })
 
 // Setup plus return the sample user's wardrobe
 app.get('/user/wardrobe', async (req, res) => {
-    await connectToDB();
+    if (mongoose.connection.readyState != 1) {
+        res.send('connection closed!');
+        return;
+    }
     await setUpTestDB().catch(err => console.log(err));
     const wardrobe = await findItemsInWardrobe();
     res.json(wardrobe);
@@ -36,7 +54,10 @@ app.get('/user/wardrobe', async (req, res) => {
 
 // Setup, return the sample user's wardrobe, use that to display the base64 encoded image.
 app.get('/user/wardrobe/showexample', async (req, res) => {
-    await connectToDB();
+    if (mongoose.connection.readyState != 1) {
+        res.send('connection closed!');
+        return;
+    }
     await setUpTestDB().catch(err => console.log(err));
     const wardrobe = await findItemsInWardrobe();
     res.set('Content-Type', 'text/html');
@@ -46,12 +67,15 @@ app.get('/user/wardrobe/showexample', async (req, res) => {
 });
 
 app.post('/user/sendarticle', async (req, res) => {
-    await connectToDB();
+    if (mongoose.connection.readyState != 1) {
+        res.send('connection closed!');
+        return;
+    }
     await setUpTestDB().catch(err => console.log(err));
     res.send('Article information recieved!')
     console.log("recieved!")
     insertNewArticle(req.body.username,req.body.wardrobeName, req.body.articleData);
-  })
+});
 
 // Setup Schemata
 const ObjID = Schema.Types.ObjectId;
@@ -103,8 +127,8 @@ const UserMData = model('UserMData', userMetadataSchema);
 const Wardrobe = model('Wardrobe', wardrobeSchema);
 const Article = model('Article', articleSchema);
 
-async function connectToDB() {
-    await mongoose.connect('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.9');
+async function resetDB() {
+    await mongoose.connection.dropDatabase();
 }
 
 // set up a databse with a test user, wardrobe, etc.
@@ -120,7 +144,7 @@ async function setUpTestDB() {
         const war = new Wardrobe({ userID: usr._id, name: "Example" });
         usr.wardrobeCollection.push(war._id);
 
-        const photoPath = "../example_photos/";
+        const photoPath = "Back-End/example_photos/";
         var infoObj = [
             {
                 wardrobeID : war._id,

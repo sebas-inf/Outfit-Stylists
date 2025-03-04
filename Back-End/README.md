@@ -34,3 +34,5 @@ and will provide json with the following details for each item:
 
 If you run the example insertion script, you will be able to see your added piece of clothing
 within the example user's wardrobe.
+
+If you connect to locahost:port/reset, the database will be reset to the default examples for you!
