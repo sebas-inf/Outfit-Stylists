@@ -55,3 +55,8 @@ the json should be formatted as an array of
     \\ object ids provided from the id property in the returned json of the wardrobe
 }
 Another example is in example_client.js
+# Seeing a list of outfits
+Send a get request to '/user/wardrobe/outfits/'
+If an outfit is loaded, you will get the above described properties along with an id property.
+
+
