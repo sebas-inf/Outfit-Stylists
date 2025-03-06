@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ClothingCard from './ClothingCard';
 import { fetchClothingItems } from '../api';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { CSSTransition } from 'react-transition-group';
 
@@ -9,6 +10,7 @@ const ClothingGrid = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchClothingItems()
@@ -50,6 +52,10 @@ const ClothingGrid = () => {
       });
     }
   };
+  
+  const openAddItemPage = () => {
+    navigate('/add-item');
+  };
 
   return (
     <div>
@@ -84,6 +90,25 @@ const ClothingGrid = () => {
           <ClothingCard key={index} item={item} />
         ))}
       </div>
+        <button
+          onClick={openAddItemPage}
+          style={{
+            position: 'fixed',
+            right: '20px',
+            bottom: '20px',
+            backgroundColor: '#007bff',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '50%',
+            width: '60px',
+            height: '60px',
+            fontSize: '32px',
+            cursor: 'pointer',
+            zIndex: 1000,
+          }}
+        >
+          +
+        </button>
     </div>
   );
 };
