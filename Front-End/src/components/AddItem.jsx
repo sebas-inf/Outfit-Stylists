@@ -43,7 +43,7 @@ const AddItem = () => {
       articleData: {
         name: formData.name,
         description: formData.description,
-        category: formData.category,
+        category: formData.category.toLowerCase(),
         mainmaterial: formData.mainmaterial,
         maincolor: formData.maincolor,
         usage: parseInt(formData.usage, 10),
