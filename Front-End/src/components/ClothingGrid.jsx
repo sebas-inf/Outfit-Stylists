@@ -62,6 +62,9 @@ const ClothingGrid = () => {
       <button onClick={toggleSidebar} style={{ margin: '10px' }}>
         Categories
       </button>
+      <button className="add-button" onClick={openAddItemPage}>
+        +
+      </button>
       <CSSTransition
         in={isSidebarOpen}
         timeout={300}
@@ -90,25 +93,6 @@ const ClothingGrid = () => {
           <ClothingCard key={index} item={item} />
         ))}
       </div>
-        <button
-          onClick={openAddItemPage}
-          style={{
-            position: 'fixed',
-            right: '20px',
-            bottom: '20px',
-            backgroundColor: '#007bff',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '50%',
-            width: '60px',
-            height: '60px',
-            fontSize: '32px',
-            cursor: 'pointer',
-            zIndex: 1000,
-          }}
-        >
-          +
-        </button>
     </div>
   );
 };

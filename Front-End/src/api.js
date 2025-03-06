@@ -22,5 +22,5 @@ export async function sendClothingItem(itemData) {
   if (!response.ok) {
     throw new Error('Failed to send article');
   }
-  return response.json();
+  return response.text();
 }
