@@ -466,13 +466,18 @@ async function findItemsInWardrobe() {
 async function insertNewArticle(userName, wardrobeName, articleInfo) {
     if (!(await Article.exists({name : articleInfo.name}))) {
         const foundUser = await User.findOne({username : userName}).exec();
-        const foundWardrobe = await Wardrobe.exists({
+        const foundWardrobe = await Wardrobe.findOne({
             userID: foundUser._id, 
             name : wardrobeName
         });
         console.log(foundWardrobe);
         articleInfo['wardrobeID'] = foundWardrobe._id;
         const newArt = await new Article(articleInfo).save();
+        console.log(foundWardrobe.articleTable);
+        if (foundWardrobe.articleTable == undefined)
+            foundWardrobe.articleTable = [];
+        foundWardrobe.articleTable.push(newArt._id);
+        await foundWardrobe.save();
     }
 }
 
@@ -480,15 +485,24 @@ async function insertNewOutfit(userName, wardrobeName, outfitInfo) {
     var resultString = "1: Insertion failed - outfit already exists";
     if (!(await Outfit.exists({name : outfitInfo.name}))) {
         const foundUser = await User.findOne({username : userName}).exec();
-        const foundWardrobe = await Wardrobe.exists({
+        const foundWardrobe = await Wardrobe.findOne({
             userID: foundUser._id, 
             name : wardrobeName
         });
         console.log(outfitInfo);
         outfitInfo['wardrobeID'] = foundWardrobe._id;
         await new Outfit(outfitInfo).save()
-        .then(res => {resultString = "0: Successfully inserted outfit into database";})
-        .catch(err => {resultString = "2: Failure to insert outfit into database.";});
+        .then(async outfit => {
+            resultString = "0: Successfully inserted outfit into database";
+            if (foundWardrobe.outfitTable == undefined)
+            foundWardrobe.outfitTable = [];
+            foundWardrobe.outfitTable.push(outfit._id);
+            await foundWardrobe.save();
+        })
+        .catch(err => {
+            console.log(err);
+            resultString = "2: Failure to insert outfit into database.";
+        });
     }
     console.log(resultString);
     return resultString;
