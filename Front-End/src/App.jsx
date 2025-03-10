@@ -1,17 +1,21 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './containers/Home.jsx'
-import Login from './components/Login.jsx'
+// src/App.jsx
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ClothingGrid from './components/ClothingGrid';
+import ClothingDetail from './components/ClothingDetail';
+import AddItem from './components/AddItem';
 
-function App() { 
+const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/*" element={<Home />} />
+        <Route path="/clothing" element={<ClothingGrid />} />
+        <Route path="/clothing/:name" element={<ClothingDetail />} />
+        <Route path="/add-item" element={<AddItem />} />
+        <Route path="/" element={<Navigate to="/clothing" replace />} />
       </Routes>
     </Router>
-  )
-}
+  );
+};
 
-export default App
-
+export default App;

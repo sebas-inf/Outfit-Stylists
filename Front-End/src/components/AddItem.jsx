@@ -1,22 +1,148 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { sendClothingItem } from '../api';
+import './AddItem.css';
 
 const AddItem = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    username: '',
+    wardrobeName: '',
+    name: '',
+    description: '',
+    category: '',
+    mainmaterial: '',
+    maincolor: '',
+    usage: '',
+    photo: ''
+  });
+  const [previewSrc, setPreviewSrc] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewSrc(reader.result);
+        const base64String = reader.result.split(',')[1];
+        setFormData({ ...formData, photo: base64String });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const payload = {
+      username: formData.username,
+      wardrobeName: formData.wardrobeName,
+      articleData: {
+        name: formData.name,
+        description: formData.description,
+        category: formData.category.toLowerCase(),
+        mainmaterial: formData.mainmaterial,
+        maincolor: formData.maincolor,
+        usage: parseInt(formData.usage, 10),
+        photo: formData.photo
+      }
+    };
+  
+    try {
+      await sendClothingItem(payload);
+      navigate('/clothing');
+    } catch (error) {
+      console.error('Error adding item:', error);
+    }
+  };
+  
+
   return (
-    <div className='flex flex-col justify-center items-center mt-5 lg:h-4/5'>
-      <div className='flex lg:flex-row flex-col justify-center items-center bg-white lg:p-5 p-3 lg:w-4/5 w-full'>
-        <div className='bg-secondaryColor p-3 flex flex-0.7 w-full'>
-          <div className='flex justify-center items-center flex-col border-2 border-dotted border-gray-300 w-full h-420'>
-            <p>Image Upload Placeholder</p>
-          </div>
-        </div>
-        <div className='flex flex-1 flex-col gap-6 lg:pl-5 mt-5 w-full'>
-          <input type='text' placeholder='Add your title' className='outline-none text-2xl sm:text-3xl font-bold border-b-2 border-gray-200 p-2' />
-          <input type='text' placeholder='Write a caption!' className='outline-none text-base sm:text-lg font-bold border-b-2 border-gray-200 p-2' />
-          <div className='flex justify-end items-end mt-5'>
-            <button className='bg-red-500 text-white font-bold p-2 rounded-full w-28 outline-none cursor-pointer'>Post!</button>
-          </div>
-        </div>
+    <div className="add-item-wrapper">
+      <div className="add-item-container">
+        <h2>Add New Clothing Item</h2>
+        <form onSubmit={handleSubmit} className="add-item-form">
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="wardrobeName"
+            placeholder="Wardrobe Name"
+            value={formData.wardrobeName}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="name"
+            placeholder="Item Name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="mainmaterial"
+            placeholder="Main Material"
+            value={formData.mainmaterial}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="maincolor"
+            placeholder="Main Color"
+            value={formData.maincolor}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="number"
+            name="usage"
+            placeholder="Enter number of times worn"
+            value={formData.usage}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="file"
+            name="photo"
+            accept="image/*"
+            onChange={handleFileChange}
+            required
+          />
+          <button type="submit">Add Item</button>
+        </form>
       </div>
+      {previewSrc && (
+        <div className="preview-container">
+          <img src={previewSrc} alt="Preview" className="preview-image" />
+        </div>
+      )}
     </div>
   );
 };
