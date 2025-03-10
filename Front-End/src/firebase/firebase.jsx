@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAWnZiCCuA-YmtXYaQ9EvZGXYKI6hhop_E",
-    authDomain: "outfit-stylists.firebaseapp.com",
-    projectId: "outfit-stylists",
-    storageBucket: "outfit-stylists.firebasestorage.app",
-    messagingSenderId: "714350218065",
-    appId: "1:714350218065:web:3b5860cb51c40c42562170"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
   };
 
 // Initialize Firebase
