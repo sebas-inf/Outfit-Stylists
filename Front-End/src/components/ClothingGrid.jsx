@@ -41,6 +41,7 @@ const ClothingGrid = () => {
 
   const handleToggleCategory = (category) => {
     if (category === '') {
+      console.log("API Key:", process.env.VITE_FIREBASE_APP_ID);
       setSelectedCategories([]);
     } else {
       setSelectedCategories(prev => {

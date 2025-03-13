@@ -1,4 +1,3 @@
-// src/pages/RegisterPage.jsx
 import React, { useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
