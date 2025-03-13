@@ -1,3 +1,4 @@
+// src/firebase/auth.jsx
 import { auth, db } from "./firebase";
 import {
   createUserWithEmailAndPassword,

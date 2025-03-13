@@ -53,7 +53,7 @@ const AddItem = () => {
   
     try {
       await sendClothingItem(payload);
-      navigate('/home');
+      navigate('/clothing');
     } catch (error) {
       console.error('Error adding item:', error);
     }
