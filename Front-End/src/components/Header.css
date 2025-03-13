@@ -1,0 +1,39 @@
+.header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 60px;
+    padding: 0 20px;
+    background-color: #303030;
+    border-bottom: 1px solid #000;
+    box-sizing: border-box;
+    z-index: 100;
+  }
+  
+  .header-left,
+  .header-right {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .header-button {
+    font-size: 16px;
+    background: transparent;
+    border: 2px solid transparent;
+    padding: 8px 16px;
+    color: #6e8299;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  }
+  
+  .header-button:hover {
+    transform: scale(1.05);
+    border-color: #697683;
+    background-color: rgba(0, 123, 255, 0.1);
+  }
+  

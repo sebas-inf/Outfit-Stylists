@@ -1,52 +1,47 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/authContext'
-import { doSignOut } from '../firebase/auth'
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/authContext';
+import { doSignOut } from '../firebase/auth';
+import './Header.css';
 
-const Header = () => {
-  const navigate = useNavigate()
-  const { userLoggedIn } = useAuth()
+const Header = ({ toggleSidebar }) => {
+  const navigate = useNavigate();
+  const { userLoggedIn } = useAuth();
 
   return (
-    <nav className="flex justify-between items-center w-full fixed top-0 left-0 h-12 border-b bg-gray-200 px-4">
-      {/* Left Side */}
-      <div>
-        <button 
-          onClick={() => navigate('/home')} 
-          className="text-sm text-blue-600 underline"
-        >
+    <nav className="header-nav">
+      <div className="header-left">
+        <button onClick={() => navigate('/home')} className="header-button">
           Home
         </button>
+        <button onClick={toggleSidebar} className="header-button">
+          Categories
+        </button>
       </div>
-      
-      {/* Right Side */}
-      <div className="flex gap-2">
+      <div className="header-right">
+        <button onClick={() => navigate('/add-item')} className="header-button">
+          Add Item
+        </button>
         {!userLoggedIn ? (
           <>
-            <button 
-              onClick={() => navigate('/login')} 
-              className="text-sm text-blue-600 underline"
-            >
+            <button onClick={() => navigate('/login')} className="header-button">
               Login
             </button>
-            <button 
-              onClick={() => navigate('/register')} 
-              className="text-sm text-blue-600 underline"
-            >
+            <button onClick={() => navigate('/register')} className="header-button">
               Register
             </button>
           </>
         ) : (
-          <button 
+          <button
             onClick={() => doSignOut().then(() => navigate('/login'))}
-            className="text-sm text-blue-600 underline"
+            className="header-button"
           >
             Logout
           </button>
         )}
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

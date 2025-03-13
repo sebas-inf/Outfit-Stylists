@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import './ClothingCard.css';
 
 const ClothingCard = ({ item }) => {
   const navigate = useNavigate();
@@ -8,13 +9,8 @@ const ClothingCard = ({ item }) => {
     <div
       className="clothing-card"
       onClick={() => navigate(`/clothing/${encodeURIComponent(item.name)}`)}
-      style={{ cursor: 'pointer', border: '1px solid #ccc', padding: '10px' }}
     >
-      <img
-        src={`data:image/jpeg;base64,${item.photo}`}
-        alt={item.name}
-        style={{ width: '100%', height: 'auto' }}
-      />
+      <img src={`data:image/jpeg;base64,${item.photo}`} alt={item.name} />
       <h3>{item.name}</h3>
       <p>{item.description}</p>
     </div>
