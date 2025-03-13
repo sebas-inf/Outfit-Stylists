@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import ClothingGrid from './ClothingGrid';
+import AddItemSidebar from './AddItemSidebar';
 import { fetchClothingItems } from '../api';
 
 const Dashboard = () => {
@@ -10,6 +11,7 @@ const Dashboard = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAddItemOpen, setIsAddItemOpen] = useState(false);
 
   useEffect(() => {
     fetchClothingItems()
@@ -31,7 +33,11 @@ const Dashboard = () => {
   }, [selectedCategories, items]);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
+    setIsSidebarOpen(prev => !prev);
+  };
+
+  const toggleAddItemSidebar = () => {
+    setIsAddItemOpen(prev => !prev);
   };
 
   const handleToggleCategory = (category) => {
@@ -40,7 +46,7 @@ const Dashboard = () => {
     } else {
       setSelectedCategories((prev) =>
         prev.includes(category)
-          ? prev.filter((c) => c !== category)
+          ? prev.filter(c => c !== category)
           : [...prev, category]
       );
     }
@@ -50,13 +56,20 @@ const Dashboard = () => {
 
   return (
     <>
-      <Header toggleSidebar={toggleSidebar} />
+      <Header 
+        toggleSidebar={toggleSidebar} 
+        toggleAddItem={toggleAddItemSidebar} 
+      />
       <Sidebar 
         isOpen={isSidebarOpen}
         categories={uniqueCategories}
         selectedCategories={selectedCategories}
         onToggleCategory={handleToggleCategory}
         toggleSidebar={toggleSidebar}
+      />
+      <AddItemSidebar 
+        isOpen={isAddItemOpen}
+        toggleAddItemSidebar={toggleAddItemSidebar}
       />
       <ClothingGrid items={filteredItems} />
     </>

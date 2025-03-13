@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/authContext';
 import { doSignOut } from '../firebase/auth';
 import './Header.css';
 
-const Header = ({ toggleSidebar }) => {
+const Header = ({ toggleSidebar, toggleAddItem }) => {
   const navigate = useNavigate();
   const { userLoggedIn } = useAuth();
 
@@ -19,7 +19,7 @@ const Header = ({ toggleSidebar }) => {
         </button>
       </div>
       <div className="header-right">
-        <button onClick={() => navigate('/add-item')} className="header-button">
+        <button onClick={toggleAddItem} className="header-button">
           Add Item
         </button>
         {!userLoggedIn ? (

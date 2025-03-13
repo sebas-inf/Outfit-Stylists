@@ -4,7 +4,7 @@
   left: 0;
   width: 250px;
   height: calc(100% - 60px);
-  background-color: #000;
+  background-color: #131313;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
   padding: 20px;
@@ -44,12 +44,12 @@
 }
 
 .sidebar ul li:hover {
-  background-color: #f0f0f0;
+  background-color: #1d1d1d;
 }
 
 .sidebar ul li.selected {
   font-weight: bold;
-  color: #007bff;
+  color: #353535;
 }
 
 .category-btn {
