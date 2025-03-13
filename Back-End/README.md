@@ -5,7 +5,7 @@
 
 # Adding Clothing items
 To add a piece of clothing, you must provide a post request with the following to route '/user/sendarticle':
-- username : String
+- userLoginID : String
 - wardrobeName : String
 - articleData : {
     // Clothing details
@@ -44,7 +44,7 @@ If you connect to locahost:port/reset, the database will be reset to the default
 # Adding an outfit
 Direct a post request to route /user/createoutfit
 the json should be formatted as an array of 
-- username : String
+- userLoginID : String
 - wardrobeName : String
 - outfitData : {
     // Outfit details

@@ -3,13 +3,12 @@ import fs from 'node:fs';
 
 const instance = axios.create({
   baseURL: 'http://localhost:3000/',
-  //timeout: 1000,
-  //headers: {'X-Custom-Header': 'foobar'}
 });
 
+const testuserid = "testuserid0000";
 const photoPath = "../example_photos/";
 await instance.post('/user/sendarticle', {
-  username : 'FirstUser',
+  userLoginID : testuserid,
   wardrobeName : 'Example',
   articleData : {
     // Clothing details
@@ -45,7 +44,7 @@ await instance.get('/user/wardrobe')
 
 // Then use specific ones in the id section:
 await instance.post('/user/createoutfit', {
-  username : 'FirstUser',
+  userLoginID : testuserid,
   wardrobeName : 'Example',
   outfitData : {
     // Outfit details
