@@ -4,6 +4,7 @@ import { fetchClothingItems } from '../api';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { CSSTransition } from 'react-transition-group';
+import Header from './Header';
 
 const ClothingGrid = () => {
   const [items, setItems] = useState([]);
@@ -58,42 +59,45 @@ const ClothingGrid = () => {
   };
 
   return (
-    <div>
-      <button onClick={toggleSidebar} style={{ margin: '10px' }}>
-        Categories
-      </button>
-      <button className="add-button" onClick={openAddItemPage}>
-        +
-      </button>
-      <CSSTransition
-        in={isSidebarOpen}
-        timeout={300}
-        classNames="sidebar"
-        unmountOnExit
-      >
-        <Sidebar
-          categories={uniqueCategories}
-          selectedCategories={selectedCategories}
-          onToggleCategory={handleToggleCategory}
-          isOpen={isSidebarOpen}
-          toggleSidebar={toggleSidebar}
-        />
-      </CSSTransition>
-      <div
-        className="clothing-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '20px',
-          padding: '20px'
-        }}
-      >
-        {filteredItems.length === 0 && <div>No items to display.</div>}
-        {filteredItems.map((item, index) => (
-          <ClothingCard key={index} item={item} />
-        ))}
+    <>
+      <Header />
+      <div>
+        <button onClick={toggleSidebar} style={{ margin: '10px' }}>
+          Categories
+        </button>
+        <button className="add-button" onClick={openAddItemPage}>
+          +
+        </button>
+        <CSSTransition
+          in={isSidebarOpen}
+          timeout={300}
+          classNames="sidebar"
+          unmountOnExit
+        >
+          <Sidebar
+            categories={uniqueCategories}
+            selectedCategories={selectedCategories}
+            onToggleCategory={handleToggleCategory}
+            isOpen={isSidebarOpen}
+            toggleSidebar={toggleSidebar}
+          />
+        </CSSTransition>
+        <div
+          className="clothing-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '20px',
+            padding: '20px'
+          }}
+        >
+          {filteredItems.length === 0 && <div>No items to display.</div>}
+          {filteredItems.map((item, index) => (
+            <ClothingCard key={index} item={item} />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
