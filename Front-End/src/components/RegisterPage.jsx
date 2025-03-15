@@ -1,8 +1,8 @@
+// src/pages/RegisterPage.jsx
 import React, { useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 import { doCreateUserWithEmailAndPassword } from "../firebase/auth";
-import "./RegisterPage.css";
 
 const Register = () => {
   const { userLoggedIn } = useAuth();
@@ -25,27 +25,13 @@ const Register = () => {
   if (userLoggedIn) return <Navigate to="/home" replace />;
 
   return (
-    <div className="register-container">
+    <div>
       <h2>Register</h2>
       <form onSubmit={onSubmit}>
-        <input 
-          type="email" 
-          placeholder="Email" 
-          required 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          required 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-        />
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <button type="submit" disabled={isRegistering}>
-          {isRegistering ? "Signing Up..." : "Sign Up"}
-        </button>
+        <input type="email" placeholder="Email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input type="password" placeholder="Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        {errorMessage && <p>{errorMessage}</p>}
+        <button type="submit" disabled={isRegistering}>{isRegistering ? "Signing Up..." : "Sign Up"}</button>
       </form>
       <Link to="/login">Already have an account? Log in</Link>
     </div>

@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { doSignInWithEmailAndPassword, doSignInWithGoogle } from "../firebase/auth";
 import { useAuth } from "../contexts/authContext";
-import "./LoginPage.css";
 
 const Login = () => {
   const { userLoggedIn } = useAuth();
@@ -41,40 +40,16 @@ const Login = () => {
   if (userLoggedIn) return <Navigate to="/home" replace />;
 
   return (
-    <div className="login-container">
+    <div>
       <h2>Login</h2>
       <form onSubmit={onSubmit}>
-        <input 
-          type="email" 
-          placeholder="Email" 
-          required 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          required 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-        />
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <button type="submit" disabled={isSigningIn}>
-          {isSigningIn ? "Signing In..." : "Sign In"}
-        </button>
+        <input type="email" placeholder="Email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input type="password" placeholder="Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        {errorMessage && <p>{errorMessage}</p>}
+        <button type="submit" disabled={isSigningIn}>{isSigningIn ? "Signing In..." : "Sign In"}</button>
       </form>
-      <Link to="/register" className="signup-link">
-        Don't have an account? Sign up
-      </Link>
-      <div className="google-signin-container">
-        <button 
-          onClick={onGoogleSignIn} 
-          disabled={isSigningIn} 
-          className="google-signin-button"
-        >
-          Sign in with Google
-        </button>
-      </div>
+      <button onClick={onGoogleSignIn} disabled={isSigningIn}>Sign in with Google</button>
+      <Link to="/register">Don't have an account? Sign up</Link>
     </div>
   );
 };
