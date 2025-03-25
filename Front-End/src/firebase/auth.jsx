@@ -7,24 +7,44 @@ import {
   signOut,
 } from "firebase/auth";
 //import { setDoc, doc } from "firebase/firestore";
-import {User as UserModel} from "../../../Back-End/src/run_database";
-
 import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:3000/',
 });
 
-async function sendLogin(uData) {
-  await axiosInstance.post('/user/login', {
-    userid : uData.uid
+async function sendCreateWithEmailPassword(userData) {
+  await axiosInstance.post('/user/signup/emailpassword', {
+    username : userData.displayName,
+    email : userData.email,
+    loginid : userData.uid,
+    createdAt : new Date(),
+    withCredentials: true,
   })
 }
 
-async function sendLogout() {
-  await axiosInstance.post('/user/logout');
+async function sendLoginWithEmailPassword(userData) {
+  await axiosInstance.post('/user/login/emailpassword', {
+    loginid : userData.uid,
+    withCredentials: true,
+  })
 }
 
+async function sendLoginWithGoogle(userData) {
+  await axiosInstance.post('/user/login/google', {
+    loginid : userData.uid,
+    email: userData.email,
+    username: userData.displayName,
+    profilePicture: userData.photoURL,
+    createdAt: new Date(),
+    withCredentials: true,
+  })
+}
+
+
+async function sendLogout() {
+  await axiosInstance.get('/user/logout');
+} 
 
 // Sign-up with Email & Password
 export const doCreateUserWithEmailAndPassword = async (email, password) => {
@@ -32,23 +52,7 @@ export const doCreateUserWithEmailAndPassword = async (email, password) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const userData = userCredential.user;
 
-    /* await setDoc(doc(db, "users", userData.uid), {
-      email,
-      createdAt: new Date(),
-    });  */
-
-    const foundUser = await UserModel.findOne({ userid : userData.uid });
-    if (!foundUser) {
-      const newUser = await new UserModel({
-        username : userData.displayName,
-        useremail : userData.email,
-        userid : userData.uid,
-        createdate : new Date()
-      })
-      await newUser.save();
-    }
-    
-    sendLogin(userData);
+    sendCreateWithEmailPassword(userData);
 
     return userData;
   } catch (error) {
@@ -62,7 +66,7 @@ export const doSignInWithEmailAndPassword = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-    sendLogin(userCredential.user);
+    sendLoginWithEmailPassword(userCredential.user);
 
     return userCredential.user;
   } catch (error) {
@@ -89,26 +93,7 @@ export const doSignInWithGoogle = async () => {
       { merge: true }
     ); */
 
-    const foundUser = await UserModel.findOne({ useremail : userData.email });
-    if (!foundUser) {
-      const newUser = await new UserModel({
-        username : userData.displayName,
-        useremail : userData.email,
-        userid : userData.uid,
-        profilepicURL : userData.photoURL,
-        createdate : new Date()
-      })
-      await newUser.save();
-    } else {
-      foundUser.username = userData.displayName;
-      foundUser.useremail = userData.email;
-      foundUser.userid = userData.uid;
-      foundUser.profilepicURL = userData.photoURL;
-      foundUser.createdate = new Date();
-      await foundUser.save();
-    }
-    
-    sendLogin(userData);
+    sendLoginWithGoogle(userData);
 
     return userData;
   } catch (error) {

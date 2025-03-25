@@ -1,13 +1,24 @@
-import mongoose, { SchemaType, SchemaTypes } from 'mongoose';
-import { connect, Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
 import fs from 'node:fs';
 import cors from 'cors';
 import express from 'express';
 import session from 'express-session';
+import {User, Wardrobe, Article, Outfit} from './schemata.mjs';
+import ConnectMongoDBSession from 'connect-mongodb-session';
+const MongoDBStore = ConnectMongoDBSession(session);
+
+// Set up connection
+const db = await mongoose.connect('mongodb://127.0.0.1:27017/wardrobe');
+
+var currentUserId = null;
 
 // Set up expresss app and routes
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin : 'http://localhost:5173',
+    credentials : true
+}));
+app.set("trust proxy", 1);
 app.use(express.json({limit: '50mb'}));
 const port = 3000;
 
@@ -15,13 +26,18 @@ const port = 3000;
 const testuserid = "testuserid0000";
 app.use(session({
     secret : 'wardrobe-app',
-    resave: false,
-    saveUninitialized : false
+    resave: true,
+    saveUninitialized : true,
+    store: new MongoDBStore({
+        uri: 'mongodb://127.0.0.1:27017/wardrobe',
+        collection: 'sessions'
+    }),
 }));
 
-
-// Set up connection
-const db = await mongoose.connect('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.9');
+app.use((req, res, next) => {
+    console.log(req.session);
+    next();
+});
 
 app.get('/', (req, res) => {
     res.send('Root')
@@ -58,7 +74,7 @@ app.get('/user/wardrobe', async (req, res) => {
         return;
     }
     await setUpTestDB().catch(err => console.log(err));
-    const wardrobe = await findItemsInWardrobe(req.session.userid);
+    const wardrobe = await findItemsInWardrobe(currentUserId);
     res.json(wardrobe);
 });
 
@@ -75,6 +91,8 @@ app.get('/user/wardrobe/showexample', async (req, res) => {
     wardrobe[1].photo + '"'
     +' alt="Photo of a piece of clothing" />'));
 });
+
+// Object creation
 
 app.post('/user/sendarticle', async (req, res) => {
     if (mongoose.connection.readyState != 1) {
@@ -97,13 +115,78 @@ app.post('/user/createoutfit', async (req, res) => {
     res.send(outfit);
 });
 
-app.post('/user/login', async (req, res) => {
-    req.session.userid = req.body.userid;
+// Signups
+
+app.post('/user/signup/emailpassword', async (req, res) => {
+    const foundUser = await User.findOne({ loginid : req.body.loginid });
+    if (!foundUser) {
+      const newUser = await new User({
+        username : req.body.username,
+        email : req.body.email,
+        loginid : req.body.loginid,
+        createdate : req.body.createdAt
+      });
+      const newWardrobe = await new Wardrobe({ userID: newUser._id, name: "My Wardrobe" });
+      newUser.wardrobeCollection.push(newWardrobe._id);
+      await newWardrobe.save();
+      await newUser.save();
+    }
+
+    currentUserId = req.body.loginid;
+    
+});
+
+app.post('/user/login/emailpassword', async (req, res) => {
+    currentUserId = req.body.loginid;
+    
+});
+
+app.post('/user/login/google', async (req, res) => {
+
+    const foundUser = await User.findOne({ useremail : req.body.email });
+    if (!foundUser) {
+        const newUser = await new User({
+            username : req.body.displayName,
+            email : req.body.email,
+            loginid : req.body.uid,
+            profilepicURL : req.body.profilePicture,
+            createdate : req.body.createdAt
+        })
+        const newWardrobe = await new Wardrobe({ userID: foundUser._id, name: "My Wardobe" });
+        newUser.wardrobeCollection.push(newWardrobe._id);
+        await newWardrobe.save();
+        await newUser.save();
+    } else {
+        foundUser.username = req.body.username;
+        foundUser.email = req.body.email;
+        foundUser.loginid = req.body.loginid;
+        foundUser.profilepicURL = req.body.profilePicture;
+        foundUser.createdate = req.body.createdAt;
+        var foundWardrobe = await Wardrobe.findOne({
+            userID: foundUser._id, 
+        });
+        if (!foundWardrobe) {
+            foundWardrobe = await new Wardrobe({ userID: foundUser._id, name: "My Wardrobe" });
+            foundUser.wardrobeCollection.push(foundWardrobe._id);
+            await foundWardrobe.save();
+        }
+        await foundUser.save();
+    }
+
+    currentUserId = req.body.loginid;
+    
+});
+
+app.get('/user/whois', async (req, res) => {
+    res.json(currentUserId);
 });
 
 app.get('/user/logout', async (req, res) => {
-    req.session.userid = null;
+    currentUserId = null;
+    
 });
+
+// Outfit showing
 
 app.get('/user/wardrobe/outfits', async (req, res) => {
     if (mongoose.connection.readyState != 1) {
@@ -111,66 +194,10 @@ app.get('/user/wardrobe/outfits', async (req, res) => {
         return;
     }
     await setUpTestDB().catch(err => console.log(err));
-    const outfits = await findOutfitsInWardrobe(req.session.userid);
+    const outfits = await findOutfitsInWardrobe(currentUserId);
     res.json(outfits);
 });
 
-
-// Setup Schemata
-export const ObjID = Schema.Types.ObjectId;
-// Article of clothing
-export const articleSchema = new Schema({
-    wardrobeID : {type: ObjID, required : true },
-    name : {type: String, required : true },
-    description : String,
-    category : {type: String, required : true },
-    mainmaterial : {type: String, required : true },
-    maincolor : {type: String, required : true },
-    usage : Number,
-    photo : {type: String, required : true },
-                   // In the future, probably need to use GridFS to store this, need to research
-                   // Here's starter info on this: https://www.mongodb.com/docs/manual/core/gridfs/
-                   // Using this so answer's guidance https://stackoverflow.com/a/47190772           
-}).set('toJSON', { virtuals: true });
-
-// Store a list of ids of clothing
-export const outfitSchema = new Schema({
-    name : {type: String, required : true },
-    description : String,
-    wardrobeID : {type: ObjID, required : true },
-    required_articles : {
-        type: [{ type: ObjID, ref: 'Article' }],
-        validate: [(array)=> {
-            return array.length >= 2;
-        }, "There must be two or more required articles!"]
-    },
-    optional_articles : [{ type: ObjID, ref: 'Article' }]
-}).set('toJSON', { virtuals: true });
-
-// Schema for wardrobes
-export const wardrobeSchema = new Schema({
-    userID : { type: ObjID, ref: 'User' },
-    name : String,
-    articleTable : [{ type: ObjID, ref: 'Article' }],
-    outfitTable : [{ type: ObjID, ref: 'Outfit' }]
-}).set('toJSON', { virtuals: true });
-
-// Schema for a user
-export const userSchema = new Schema({
-    username : String,
-    loginid : {type: String, required : true },
-    email : {type: String, required : true },
-    createdate : Date,
-    profilepicURL : String,
-    wardrobeCollection : [{ type: ObjID, ref: 'Wardrobe' }] 
-}).set('toJSON', { virtuals: true });
-
-
-// Models
-export const User = model('User', userSchema);
-export const Wardrobe = model('Wardrobe', wardrobeSchema);
-export const Article = model('Article', articleSchema);
-export const Outfit = model('Outfit', outfitSchema);
 
 async function resetDB() {
     await mongoose.connection.dropDatabase();
@@ -466,6 +493,11 @@ async function findItemsInWardrobe(id) {
     if (!id) id = testuserid;
     const foundUser = await User.findOne({loginid : id});
     const foundWardrobe = await Wardrobe.findById(foundUser.wardrobeCollection[0]).exec();
+    if (!foundWardrobe) {
+        foundWardrobe = new Wardrobe({ userID: foundUser._id, name: "My Wardrobe" });
+        foundUser.wardrobeCollection.push(foundWardrobe._id);
+        await foundWardrobe.save();
+    }
     const foundItems = await Article.find({wardrobeID : foundWardrobe._id}).lean().exec();
     foundItems.forEach((w) => {
         w['userLoginID'] = foundUser.loginid;
@@ -482,6 +514,11 @@ async function findOutfitsInWardrobe(id) {
     if (!id) id = testuserid;
     const foundUser = await User.findOne({loginid : id});
     const foundWardrobe = await Wardrobe.findById(foundUser.wardrobeCollection[0]).exec();
+    if (!foundWardrobe) {
+        foundWardrobe = new Wardrobe({ userID: foundUser._id, name: "My Wardrobe" });
+        foundUser.wardrobeCollection.push(foundWardrobe._id);
+        await foundWardrobe.save();
+    }
     const foundItems = await Outfit.find({wardrobeID : foundWardrobe._id}).lean().exec();
     foundItems.forEach((w) => {
         w['userLoginID'] = foundUser.loginid;
@@ -501,13 +538,13 @@ async function insertNewArticle(userLoginID, wardrobeName, articleInfo) {
     var resultString = "1: Insertion failed - " + obj + " already exists";
     if (!(await Article.exists({name : articleInfo.name}))) {
         const foundUser = await User.findOne({loginid : userLoginID}).exec();
-        const foundWardrobe = await Wardrobe.findOne({
+        var foundWardrobe = await Wardrobe.findOne({
             userID: foundUser._id, 
             name : wardrobeName
         });
         if (!foundWardrobe) {
             foundWardrobe = new Wardrobe({ userID: foundUser._id, name: wardrobeName });
-            foundUser.wardrobeCollection.push(war._id);
+            foundUser.wardrobeCollection.push(foundWardrobe._id);
             await foundWardrobe.save();
         }
         console.log(foundWardrobe);
@@ -533,14 +570,14 @@ async function insertNewOutfit(userLoginID, wardrobeName, outfitInfo) {
     var resultString = "1: Insertion failed - "+ obj +" already exists";
     if (!(await Outfit.exists({name : outfitInfo.name}))) {
         const foundUser = await User.findOne({loginid : userLoginID}).exec();
-        const foundWardrobe = await Wardrobe.findOne({
+        var foundWardrobe = await Wardrobe.findOne({
             userID: foundUser._id, 
             name : wardrobeName
         });
         const errnoitems = "3: User has no items in their wardrobe!";
         if (!foundWardrobe) {
             foundWardrobe = new Wardrobe({ userID: foundUser._id, name: wardrobeName });
-            foundUser.wardrobeCollection.push(war._id);
+            foundUser.wardrobeCollection.push(foundWardrobe._id);
             await foundWardrobe.save();
             console.log(errnoitems);
             return errnoitems;
