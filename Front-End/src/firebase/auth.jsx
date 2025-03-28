@@ -11,34 +11,19 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:3000/',
+  withCredentials: true
 });
 
 async function sendCreateWithEmailPassword(userData) {
-  await axiosInstance.post('/user/signup/emailpassword', {
-    username : userData.displayName,
-    email : userData.email,
-    loginid : userData.uid,
-    createdAt : new Date(),
-    withCredentials: true,
-  })
+  await axiosInstance.post('/user/signup/emailpassword', userData)
 }
 
 async function sendLoginWithEmailPassword(userData) {
-  await axiosInstance.post('/user/login/emailpassword', {
-    loginid : userData.uid,
-    withCredentials: true,
-  })
+  await axiosInstance.post('/user/login/emailpassword', userData)
 }
 
 async function sendLoginWithGoogle(userData) {
-  await axiosInstance.post('/user/login/google', {
-    loginid : userData.uid,
-    email: userData.email,
-    username: userData.displayName,
-    profilePicture: userData.photoURL,
-    createdAt: new Date(),
-    withCredentials: true,
-  })
+  await axiosInstance.post('/user/login/google', userData)
 }
 
 
