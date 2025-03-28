@@ -3,11 +3,19 @@
 - Run mongod.exe from your install in program files with the --dbpath parameter set to the sample_database folder path
     - This runs a local database connection with the data right inside the project.
 
+# Looking at example_client.js
+If you run it with no parameters, you will send a request to 
+create a new sample article, and then a new outfit,
+
+If you run it with one or more parameters, you run the new example request to send an article to the currently logged in user
+If no users are logged in, this should just add it to the test user's wardrobe.
+
 # Adding Clothing items
 To add a piece of clothing, you must provide a post request with the following to route '/user/sendarticle':
-- userLoginID : String
-- wardrobeName : String
-- articleData : {
+// Changes: you can now just call the array "data" or keep it "articleData"
+// Also directly uses stored logged in userid
+- wardrobeName : String // Optional, default wardrobe named "My Wardrobe"
+- data : {
     // Clothing details
     - name : String
     - maincolor : String
@@ -43,18 +51,29 @@ If you connect to locahost:port/reset, the database will be reset to the default
 
 # Adding an outfit
 Direct a post request to route /user/createoutfit
+// Changes: you can now just call the array "data" or "outfitData"
+// Also directly uses stored logged in userid
 the json should be formatted as an array of 
-- userLoginID : String
-- wardrobeName : String
-- outfitData : {
+- wardrobeName : String // Optional, default wardrobe named "My Wardrobe"
+- data : {
     // Outfit details
     - name : String
     - description : String
-    - required_articles : { String \\ object id }
-    - optional_articles : { String \\ object id}
-    \\ object ids provided from the id property in the returned json of the wardrobe
+    - required_articles : { String (object id)*}
+    - optional_articles : { String (object id)*}
+    (*object ids provided from the id property in the returned json of the wardrobe)
 }
 Another example is in example_client.js
+
+# Seeing a list of clothes in default created wardrobe
+Send a get request to '/user/wardrobe/'
+Sends a json of all clothing items in "My Wardrobe" wardrobe (or "Example" wardrobe, for test user).
+
+# Seeing a list of clothes in a specific wardrobe
+Send a *POST* request to '/user/wardrobe/specific' 
+with the request having one property: wardrobeName = name string 
+Sends a json of all clothing items in "My Wardrobe" wardrobe.
+
 # Seeing a list of outfits
 Send a get request to '/user/wardrobe/outfits/'
 If an outfit is loaded, you will get the above described properties along with an id property.
