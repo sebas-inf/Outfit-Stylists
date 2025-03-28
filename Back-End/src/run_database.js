@@ -118,14 +118,14 @@ app.get('/user/wardrobe/showexample', async (req, res) => {
 app.post('/user/sendarticle', async (req, res) => {
     console.log(req.session.testvar);
     res.send('Article information recieved!');
-    const article = await insertIntoWardrobe(currentUserId, Article, req.body.articleData ?? req.body.data, req.body.wardrobeName);
+    const article = await insertIntoWardrobe(currentUserId, Article, req.body.articleData ?? req.body.data);
     req.session.testvar = "an article was recieved last";
 });
 
 app.post('/user/createoutfit', async (req, res) => {
     console.log(req.session.testvar)
     res.send('Outfit information recieved!');
-    const outfit = await insertIntoWardrobe(currentUserId, Outfit, req.body.articleData ?? req.body.data, req.body.wardrobeName);
+    const outfit = await insertIntoWardrobe(currentUserId, Outfit, req.body.articleData ?? req.body.data);
     req.session.testvar = "an outfit was created last";  
 });
 
@@ -534,12 +534,18 @@ async function findAllInWardrobe(userLoginID, What, wardrobeName = "My Wardrobe"
 
     const usr = await User.findOne({loginid : userLoginID});
     if (!usr) return "Error: No user by this id found!"
-    const war = 
-        await Wardrobe.findOne({
+    var war = await Wardrobe.findOne({
+        userID : usr._id,
+        name : wardrobeName
+    }).exec()
+    if (!war) {
+        usr.wardrobeCollection.push(createEmptyWardrobe(usr._id, wardrobeName));
+        war = await Wardrobe.findOne({
             userID : usr._id,
             name : wardrobeName
-        }).exec()
-        ?? await Wardrobe.findById(usr.wardrobeCollection[usr.wardrobeCollection.push(createEmptyWardrobe(usr._id, wardrobeName)) - 1]);
+        }).exec();
+    }
+
     const items = await What.find({wardrobeID : war._id}).lean().exec();
     items.forEach((i) => {
         i['userLoginID'] = usr.loginid;
@@ -559,12 +565,17 @@ async function insertIntoWardrobe(userLoginID, What, itemInfo, wardrobeName = "M
     const usr = await User.findOne({loginid : userLoginID}).exec();
     if (!usr) return "Error: No user by this id found!";
 
-    const war = 
-        await Wardrobe.findOne({
+    var war = await Wardrobe.findOne({
             userID : usr._id,
             name : wardrobeName
         }).exec()
-        ?? await Wardrobe.findById(usr.wardrobeCollection[usr.wardrobeCollection.push(createEmptyWardrobe(usr._id, wardrobeName)) - 1]);
+    if (!war) {
+        usr.wardrobeCollection.push(createEmptyWardrobe(usr._id, wardrobeName));
+        war = await Wardrobe.findOne({
+            userID : usr._id,
+            name : wardrobeName
+        }).exec()
+    }
 
     itemInfo['wardrobeID'] = war._id;
     const item = await What.findOne({name : itemInfo.name, wardrobeID : war._id}) 
