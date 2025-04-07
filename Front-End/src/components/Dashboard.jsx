@@ -1,10 +1,10 @@
-// Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import ClothingGrid from './ClothingGrid';
 import AddItemSidebar from './AddItemSidebar';
 import { fetchClothingItems } from '../api';
+import PageTransition from './PageTransition';
 
 const Dashboard = () => {
   const [items, setItems] = useState([]);
@@ -71,7 +71,12 @@ const Dashboard = () => {
         isOpen={isAddItemOpen}
         toggleAddItemSidebar={toggleAddItemSidebar}
       />
-      <ClothingGrid items={filteredItems} />
+      <PageTransition>
+        <div style={{ padding: '20px' }}>
+          <h2 style={{ paddingTop: '20px' }}>Home</h2>
+          <ClothingGrid items={filteredItems} />
+        </div>
+      </PageTransition>
     </>
   );
 };

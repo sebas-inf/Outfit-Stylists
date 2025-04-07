@@ -5,6 +5,9 @@ import AddItem from './components/AddItem';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import Dashboard from './components/Dashboard';
+import OutfitsGrid from './components/OutfitsGrid';
+import OutfitDetail from './components/OutfitDetail';
+import PageTransition from './components/PageTransition';
 
 const App = () => {
   return (
@@ -15,6 +18,8 @@ const App = () => {
         <Route path="/add-item" element={<AddItem />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/outfits" element={<OutfitsGrid />} />
+        <Route path="/outfit/:id" element={<OutfitDetail />} />
         <Route path="/" element={<Navigate to="/home" replace />} />
       </Routes>
     </Router>

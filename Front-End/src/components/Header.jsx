@@ -14,6 +14,9 @@ const Header = ({ toggleSidebar, toggleAddItem }) => {
         <button onClick={() => navigate('/home')} className="header-button">
           Home
         </button>
+        <button onClick={() => navigate('/outfits')} className="header-button">
+          Outfits
+        </button>
         <button onClick={toggleSidebar} className="header-button">
           Categories
         </button>

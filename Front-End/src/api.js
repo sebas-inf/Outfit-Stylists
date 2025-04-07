@@ -24,3 +24,10 @@ export async function sendClothingItem(itemData) {
   }
   return response.text();
 }
+
+export async function fetchOutfits() {
+  const response = await fetch("http://localhost:3000/user/wardrobe/outfits");
+  if (!response.ok) throw new Error("Failed to fetch outfits");
+  return response.json();
+}
+
