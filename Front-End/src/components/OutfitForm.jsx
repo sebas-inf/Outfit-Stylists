@@ -24,12 +24,12 @@ const OutfitForm = () => {
         name,
         description,
         required_articles: selectedItems.map(item => item.id),
-        optional_articles: [] // Extend as needed.
+        optional_articles: []
       }
     };
     try {
-      await createOutfit(outfitData); // API call to save the outfit.
-      navigate("/outfits"); // Navigate to the outfits page on success.
+      await createOutfit(outfitData);
+      navigate('/outfits', { state: {} });
     } catch (error) {
       console.error("Error creating outfit:", error);
       alert("There was an error creating the outfit. Please try again.");

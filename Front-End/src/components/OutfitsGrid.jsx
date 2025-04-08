@@ -15,37 +15,38 @@ const OutfitsGrid = () => {
   // Fetch outfits and articles when the component mounts.
   useEffect(() => {
     fetchOutfits()
-      .then(data => setOutfits(data))
-      .catch(err => console.error('Error fetching outfits:', err));
+      .then((data) => setOutfits(data))
+      .catch((err) => console.error('Error fetching outfits:', err));
     fetchClothingItems()
-      .then(data => setArticles(data))
-      .catch(err => console.error('Error fetching articles:', err));
+      .then((data) => setArticles(data))
+      .catch((err) => console.error('Error fetching articles:', err));
   }, []);
 
-  // Function to navigate to outfit detail page.
+  // When an outfit is clicked, navigate to the outfit detail page.
   const openOutfitDetail = (outfit) => {
     navigate(`/outfit/${outfit.id}`, { state: { outfit, articles } });
   };
-
-  // Grab the first outfit if it exists.
-  const firstOutfit = outfits.length > 0 ? outfits[0] : null;
 
   return (
     <>
       <Header />
       <PageTransition>
-        <div className="outfits-container" style={{ padding: '20px' }}>
-          <h2 style={{ padding: '20px 0', textAlign: 'left' }}>Outfits</h2>
-          {firstOutfit ? (
-            <div 
-              className="outfit-wrapper" 
-              onClick={() => openOutfitDetail(firstOutfit)}
-              style={{ cursor: 'pointer' }}
-            >
-              <OutfitCard outfit={firstOutfit} articles={articles} />
+        <div className="outfits-container">
+          <h2 className="outfits-heading">Outfits</h2>
+          {outfits.length > 0 ? (
+            <div className="outfits-grid">
+              {outfits.map((outfit) => (
+                <div
+                  key={outfit.id}
+                  className="outfit-wrapper"
+                  onClick={() => openOutfitDetail(outfit)}
+                >
+                  <OutfitCard outfit={outfit} articles={articles} />
+                </div>
+              ))}
             </div>
           ) : (
-            <p>No outfit available.</p>
+            <p>No outfits available.</p>
           )}
         </div>
       </PageTransition>
