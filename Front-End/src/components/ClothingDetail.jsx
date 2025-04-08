@@ -1,7 +1,9 @@
+// src/components/ClothingDetail.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchClothingItemByName } from '../api';
 import Header from './Header';
+import './ClothingDetail.css';
 
 const ClothingDetail = () => {
   const { name } = useParams();
@@ -18,18 +20,20 @@ const ClothingDetail = () => {
   return (
     <>
       <Header />
-      <div className="clothing-detail" style={{ padding: '20px' }}>
+      <div className="clothing-detail-container">
         <img
+          className="clothing-detail-image"
           src={`data:image/jpeg;base64,${item.photo}`}
           alt={item.name}
-          style={{ width: '300px', height: 'auto' }}
         />
-        <h2>{item.name}</h2>
-        <p>{item.description}</p>
-        <p>Category: {item.category}</p>
-        <p>Main Material: {item.mainmaterial}</p>
-        <p>Main Color: {item.maincolor}</p>
-        <p>Usage: {item.usage}</p>
+        <h2 className="clothing-detail-name">{item.name}</h2>
+        <p className="clothing-detail-description">{item.description}</p>
+        <div className="clothing-detail-info">
+          <p><strong>Category:</strong> {item.category}</p>
+          <p><strong>Main Material:</strong> {item.mainmaterial}</p>
+          <p><strong>Main Color:</strong> {item.maincolor}</p>
+          <p><strong>Usage:</strong> {item.usage}</p>
+        </div>
       </div>
     </>
   );

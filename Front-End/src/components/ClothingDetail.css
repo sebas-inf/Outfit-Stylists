@@ -1,0 +1,37 @@
+/* src/components/ClothingDetail.css */
+.clothing-detail-container {
+    max-width: 600px;
+    margin: 80px auto;
+    padding: 40px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    text-align: left; /* Changed from center to left */
+    color: #fff;
+  }
+  
+  .clothing-detail-image {
+    display: block; /* Center the image block if desired */
+    margin: 0 auto 20px auto; /* Centers the image horizontally and adds bottom margin */
+    width: 300px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .clothing-detail-name {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  
+  .clothing-detail-description {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  
+  .clothing-detail-info p {
+    margin: 5px 0;
+    font-size: 1rem;
+  }
+  
