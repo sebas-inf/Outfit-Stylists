@@ -17,7 +17,6 @@ const Header = ({
   const location = useLocation();
   const { userLoggedIn } = useAuth();
 
-  // For the outfit button, if we're not on the home grid, navigate with a flag.
   const handleOutfitButtonClick = () => {
     if (location.pathname !== '/home') {
       navigate('/home', { state: { startOutfitCreation: true } });
@@ -26,7 +25,6 @@ const Header = ({
     }
   };
 
-  // For the add item button, if not on home, navigate with a flag.
   const handleAddItemClick = () => {
     if (location.pathname !== '/home') {
       navigate('/home', { state: { startAddItem: true } });

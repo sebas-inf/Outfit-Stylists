@@ -1,3 +1,4 @@
+// src/components/OutfitsGrid.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import OutfitCard from './OutfitCard';
@@ -11,6 +12,7 @@ const OutfitsGrid = () => {
   const [articles, setArticles] = useState([]);
   const navigate = useNavigate();
 
+  // Fetch outfits and articles when the component mounts.
   useEffect(() => {
     fetchOutfits()
       .then(data => setOutfits(data))
@@ -20,36 +22,31 @@ const OutfitsGrid = () => {
       .catch(err => console.error('Error fetching articles:', err));
   }, []);
 
+  // Function to navigate to outfit detail page.
   const openOutfitDetail = (outfit) => {
     navigate(`/outfit/${outfit.id}`, { state: { outfit, articles } });
   };
 
-  const renderOutfitList = () => {
-    const outfitComponents = [];
-    for (let i = 0; i < outfits.length; i++) {
-      const outfit = outfits[i];
-      outfitComponents.push(
-        <div
-          key={outfit.id}
-          className="outfit-wrapper"
-          onClick={() => openOutfitDetail(outfit)}
-        >
-          <OutfitCard outfit={outfit} articles={articles} />
-        </div>
-      );
-    }
-    return outfitComponents;
-  };
+  // Grab the first outfit if it exists.
+  const firstOutfit = outfits.length > 0 ? outfits[0] : null;
 
   return (
     <>
       <Header />
       <PageTransition>
-        <div className="outfits-container">
-          <h2 className="outfits-heading">Outfits</h2>
-          <div className="outfits-grid">
-            {renderOutfitList()}
-          </div>
+        <div className="outfits-container" style={{ padding: '20px' }}>
+          <h2 style={{ padding: '20px 0', textAlign: 'left' }}>Outfits</h2>
+          {firstOutfit ? (
+            <div 
+              className="outfit-wrapper" 
+              onClick={() => openOutfitDetail(firstOutfit)}
+              style={{ cursor: 'pointer' }}
+            >
+              <OutfitCard outfit={firstOutfit} articles={articles} />
+            </div>
+          ) : (
+            <p>No outfit available.</p>
+          )}
         </div>
       </PageTransition>
     </>
