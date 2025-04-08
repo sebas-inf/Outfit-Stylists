@@ -1,6 +1,7 @@
 // src/components/OutfitsGrid.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import OutfitCard from './OutfitCard';
 import { fetchOutfits, fetchClothingItems } from '../api';
 import Header from './Header';
@@ -12,7 +13,7 @@ const OutfitsGrid = () => {
   const [articles, setArticles] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch outfits and articles when the component mounts.
+  // Fetch the outfits and articles when the component mounts.
   useEffect(() => {
     fetchOutfits()
       .then((data) => setOutfits(data))
@@ -22,7 +23,7 @@ const OutfitsGrid = () => {
       .catch((err) => console.error('Error fetching articles:', err));
   }, []);
 
-  // When an outfit is clicked, navigate to the outfit detail page.
+  // Function to navigate to the outfit detail page.
   const openOutfitDetail = (outfit) => {
     navigate(`/outfit/${outfit.id}`, { state: { outfit, articles } });
   };
@@ -31,23 +32,29 @@ const OutfitsGrid = () => {
     <>
       <Header />
       <PageTransition>
-        <div className="outfits-container">
-          <h2 className="outfits-heading">Outfits</h2>
-          {outfits.length > 0 ? (
-            <div className="outfits-grid">
-              {outfits.map((outfit) => (
-                <div
+        <div className="outfits-container" style={{ padding: '20px' }}>
+          <h2 className="outfits-heading" style={{ padding: '20px 0', textAlign: 'left' }}>
+            Outfits
+          </h2>
+          <div className="outfits-grid">
+            {outfits.length === 0 ? (
+              <div>...</div>
+            ) : (
+              outfits.map((outfit, index) => (
+                <motion.div
                   key={outfit.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.4 }}
                   className="outfit-wrapper"
                   onClick={() => openOutfitDetail(outfit)}
+                  style={{ cursor: 'pointer' }}
                 >
                   <OutfitCard outfit={outfit} articles={articles} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No outfits available.</p>
-          )}
+                </motion.div>
+              ))
+            )}
+          </div>
         </div>
       </PageTransition>
     </>
