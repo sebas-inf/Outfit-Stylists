@@ -36,4 +36,11 @@
     border-color: #697683;
     background-color: rgba(0, 123, 255, 0.1);
   }
+
+  .confirm-button {
+    background-color: #007bff;
+    color: #fff;
+    border: 2px solid #007bff;
+  }
+  
   

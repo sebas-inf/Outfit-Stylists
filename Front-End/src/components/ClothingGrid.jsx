@@ -2,13 +2,15 @@ import React from 'react';
 import ClothingCard from './ClothingCard';
 import './ClothingGrid.css';
 
-const ClothingGrid = ({ items = [] }) => {
+const ClothingGrid = ({ items = [], renderItem }) => {
   return (
     <div className="clothing-grid">
       {items.length === 0 ? (
-        <div>No items to display.</div>
+        <div>Loading...</div>
       ) : (
-        items.map((item, index) => <ClothingCard key={index} item={item} />)
+        items.map((item, index) =>
+          renderItem ? renderItem(item) : <ClothingCard key={index} item={item} />
+        )
       )}
     </div>
   );

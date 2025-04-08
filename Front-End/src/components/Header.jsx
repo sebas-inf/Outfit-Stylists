@@ -1,12 +1,39 @@
+// src/components/Header.jsx
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/authContext';
 import { doSignOut } from '../firebase/auth';
 import './Header.css';
 
-const Header = ({ toggleSidebar, toggleAddItem }) => {
+const Header = ({
+  toggleSidebar,
+  toggleAddItem,
+  isAddingItem,
+  isCreatingOutfit,
+  toggleOutfitCreation,
+  confirmOutfit
+}) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { userLoggedIn } = useAuth();
+
+  // For the outfit button, if we're not on the home grid, navigate with a flag.
+  const handleOutfitButtonClick = () => {
+    if (location.pathname !== '/home') {
+      navigate('/home', { state: { startOutfitCreation: true } });
+    } else {
+      toggleOutfitCreation();
+    }
+  };
+
+  // For the add item button, if not on home, navigate with a flag.
+  const handleAddItemClick = () => {
+    if (location.pathname !== '/home') {
+      navigate('/home', { state: { startAddItem: true } });
+    } else {
+      toggleAddItem();
+    }
+  };
 
   return (
     <nav className="header-nav">
@@ -22,8 +49,16 @@ const Header = ({ toggleSidebar, toggleAddItem }) => {
         </button>
       </div>
       <div className="header-right">
-        <button onClick={toggleAddItem} className="header-button">
-          Add Item
+        {isCreatingOutfit && (
+          <button onClick={confirmOutfit} className="header-button confirm-button">
+            Confirm Outfit
+          </button>
+        )}
+        <button onClick={handleOutfitButtonClick} className="header-button">
+          {isCreatingOutfit ? 'Cancel Outfit' : 'Create Outfit'}
+        </button>
+        <button onClick={handleAddItemClick} className="header-button">
+          {isAddingItem ? 'Cancel Add Item' : 'Add Item'}
         </button>
         {!userLoggedIn ? (
           <>
@@ -35,10 +70,7 @@ const Header = ({ toggleSidebar, toggleAddItem }) => {
             </button>
           </>
         ) : (
-          <button
-            onClick={() => doSignOut().then(() => navigate('/login'))}
-            className="header-button"
-          >
+          <button onClick={() => doSignOut().then(() => navigate('/login'))} className="header-button">
             Logout
           </button>
         )}
