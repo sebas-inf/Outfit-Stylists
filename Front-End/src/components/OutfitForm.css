@@ -1,0 +1,54 @@
+.outfit-form-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 80px auto;
+    background-color: #1b1b1b;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  
+  .outfit-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .confirm-button {
+    background-color: #007bff;
+    color: #fff;
+    border: 2px solid #007bff;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .outfit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .outfit-form input,
+  .outfit-form textarea {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    width: 100%;
+  }
+  
+  .selected-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .selected-item-card {
+    border: 1px solid #000000;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  

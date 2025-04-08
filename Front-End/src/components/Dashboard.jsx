@@ -50,6 +50,14 @@ const Dashboard = () => {
     }
   }, [location]);
 
+  useEffect(() => {
+    if (location.pathname === '/home') {
+      setIsCreatingOutfit(false);
+      setSelectedOutfitItems([]);
+      setIsAddItemOpen(false);
+    }
+  }, [location.pathname]);
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
@@ -93,26 +101,15 @@ const Dashboard = () => {
     }
   };
 
-  const confirmOutfit = async () => {
-    const outfitName = window.prompt('Enter outfit name:');
-    if (!outfitName) return;
-    const outfitDescription = window.prompt('Enter outfit description:');
-    const outfitData = {
-      data: {
-        name: outfitName,
-        description: outfitDescription || '',
-        required_articles: selectedOutfitItems,
-        optional_articles: []
-      }
-    };
-    try {
-      cancelOutfitCreation();
-      const refreshedItems = await fetchClothingItems();
-      setItems(refreshedItems);
-      setFilteredItems(refreshedItems);
-    } catch (error) {
-      console.error('Error creating outfit:', error);
+  const confirmOutfit = () => {
+    if (selectedOutfitItems.length === 0) {
+      alert('Select at least one item for the outfit.');
+      return;
     }
+    const selectedItems = items.filter((item) =>
+      selectedOutfitItems.includes(item.id)
+    );
+    navigate('/create-outfit', { state: { selectedItems } });
   };
 
   return (
@@ -141,29 +138,45 @@ const Dashboard = () => {
             renderItem={(item) => (
               <div
                 key={item.id}
-                onClickCapture={(e) => {
-                  if (isCreatingOutfit) {
-                    e.nativeEvent.stopImmediatePropagation();
-                    toggleOutfitSelection(item.id);
-                  }
-                }}
-                onClick={() => {
-                  if (!isCreatingOutfit) {
-                    navigate(`/clothing/${encodeURIComponent(item.name)}`);
-                  }
-                }}
                 style={{
+                  position: 'relative',
                   opacity: isCreatingOutfit && selectedOutfitItems.includes(item.id) ? 0.5 : 1,
                   cursor: isCreatingOutfit ? 'pointer' : 'default'
                 }}
               >
-                <ClothingCard item={item} />
+                <ClothingGridWrapper item={item} isCreatingOutfit={isCreatingOutfit} toggleOutfitSelection={toggleOutfitSelection} />
               </div>
             )}
           />
         </div>
       </PageTransition>
     </>
+  );
+};
+
+const ClothingGridWrapper = ({ item, isCreatingOutfit, toggleOutfitSelection }) => {
+  return (
+    <div style={{ position: 'relative' }}>
+      <ClothingCard item={item} />
+      {isCreatingOutfit && (
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleOutfitSelection(item.id);
+          }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0)',
+            zIndex: 10,
+            cursor: 'pointer'
+          }}
+        />
+      )}
+    </div>
   );
 };
 

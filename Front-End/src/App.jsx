@@ -7,7 +7,7 @@ import RegisterPage from './components/RegisterPage';
 import Dashboard from './components/Dashboard';
 import OutfitsGrid from './components/OutfitsGrid';
 import OutfitDetail from './components/OutfitDetail';
-import PageTransition from './components/PageTransition';
+import OutfitForm from './components/OutfitForm'; 
 
 const App = () => {
   return (
@@ -16,6 +16,7 @@ const App = () => {
         <Route path="/home" element={<Dashboard />} />
         <Route path="/clothing/:name" element={<ClothingDetail />} />
         <Route path="/add-item" element={<AddItem />} />
+        <Route path="/create-outfit" element={<OutfitForm />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/outfits" element={<OutfitsGrid />} />

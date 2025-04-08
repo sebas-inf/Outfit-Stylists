@@ -39,8 +39,6 @@ export async function createOutfit(outfitData) {
     },
     body: JSON.stringify(outfitData)
   });
-  if (!response.ok) {
-    throw new Error('Failed to create outfit');
-  }
-  return response.json();
+  if (!response.ok) throw new Error('Failed to create outfit');
+  return response.text();
 }
