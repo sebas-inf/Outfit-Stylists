@@ -1,4 +1,4 @@
-// src/components/Header.jsx
+
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/authContext';
@@ -36,7 +36,7 @@ const Header = ({
   return (
     <nav className="header-nav">
       <div className="header-left">
-      <button onClick={() => navigate('/home', { state: {} })} className="header-button">
+        <button onClick={() => navigate('/home', { state: {} })} className="header-button">
           Home
         </button>
         <button onClick={() => navigate('/outfits')} className="header-button">
@@ -44,6 +44,10 @@ const Header = ({
         </button>
         <button onClick={toggleSidebar} className="header-button">
           Categories
+        </button>
+        
+        <button onClick={() => navigate('/weather')} className="header-button">
+          Weather
         </button>
       </div>
       <div className="header-right">

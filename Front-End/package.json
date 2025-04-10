@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "proxy" : "http://localhost:5173/",
+  "proxy": "http://localhost:5173/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -14,6 +14,7 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "firebase": "^11.4.0",
+    "framer-motion": "^12.6.3",
     "mongodb": "^6.13.0",
     "mongoose": "^8.10.1",
     "react": "^18.3.1",
