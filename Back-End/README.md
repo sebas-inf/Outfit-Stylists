@@ -18,10 +18,10 @@ To add a piece of clothing, you must provide a post request with the following t
 - data : {
     // Clothing details
     - name : String
-    - maincolor : String
     - description : String
     - category : String // Lowercase written category, ie 'pants'
     - mainmaterial : String
+    - maincolor : String
     - usage : Number // For now
     - photo : Base-64 encoded String of the image }
 An example with axios is written in 'example_client.js'
@@ -64,6 +64,31 @@ the json should be formatted as an array of
     (*object ids provided from the id property in the returned json of the wardrobe)
 }
 Another example is in example_client.js
+
+# Deletion
+To delete an article or outfit, just send a request with an (id: objectid) to the '/user/deletearticle' and '/user/deleteoutfit' routes respectively.
+
+# Updating
+To update an article or outfit, simply send the changed data in a similar array to adding an item, but also include an id parameter that you get from the wardrobe get request.
+The routes are '/user/updatearticle' and '/user/updateoutfit'
+Be mindful that changing an outfit this way will replace the entire array rather than adding.
+The json should look like so:
+{
+    id : id of article or outfit
+    data : {
+        propertytochange1 : changed value
+        propertytochange2 : changed value // and so on
+    }
+}
+## Adding or removing specific articles from an outfit
+use the routes '/user/updateoutfit/additems' and '/user/updateoutfit/removeitems' to add and remove items specifically. 
+the expected json is as so:
+{
+    id : outfit id
+    optional_articles : { list of ids to add or remove }
+    required_articles : { list of ids to add or remove }
+}
+
 
 # Seeing a list of clothes in default created wardrobe
 Send a get request to '/user/wardrobe/'

@@ -11,8 +11,6 @@ const photoPath = "../example_photos/";
 
 if (!process.argv[2]) {
   await instance.post('/user/sendarticle', {
-    userLoginID : testuserid,
-    wardrobeName : 'Example',
     data : {
       // Clothing details
       name : 'Nice Shoes',
@@ -45,13 +43,33 @@ if (!process.argv[2]) {
     console.log(error);
   });
 
+
+  await instance.post('/user/updatearticle', {
+    id : items['Nice Shoes'],
+    data : {
+      // Clothing details
+      name : 'Nice Shoes',
+      description : "Some nice purple converse",
+      maincolor : 'purple',
+      category : 'shoes', // Lowercase written category, ie 'pants'
+      mainmaterial : 'Textile',
+      usage : 20, // For now, provide a number between 1-100
+      photo : fs.readFileSync(photoPath + 'shoes.jpg').toString('base64')
+    }
+  }, {withCredentials: true})
+  .then(function (response) {
+    console.log(response.status);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+  var outfitname = 'Cool Outfit';
   // Then use specific ones in the id section:
   await instance.post('/user/createoutfit', {
-    userLoginID : testuserid,
-    wardrobeName : 'Example',
     data : {
       // Outfit details
-      name : 'Cool Outfit',
+      name : outfitname,
       description : "A really cool outfit",
       required_articles : [items['Black Pants'], items['Dark Blue Dress Shirt']],
       optional_articles : [items['Cool Hat'], items['Nice Shoes']]
@@ -63,6 +81,58 @@ if (!process.argv[2]) {
   .catch(function (error) {
     console.log(error);
   });
+
+
+  var outfitid;
+  await instance.get('/user/wardrobe/outfits', {withCredentials: true})
+  .then(function (response) {
+    response.data.forEach( (item) => {
+      if (item.name == outfitname) outfitid = item.id;
+    });
+    console.log(items);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+
+  await instance.post('/user/updateoutfit', {
+    id : outfitid,
+    data : {
+      // Outfit details
+      name : 'Cool Outfit',
+      description : "A really awesome outfit with a scarf now",
+      required_articles : [items['Black Pants'], items['Dark Blue Dress Shirt']],
+      optional_articles : [items['Cool Hat'], items['Nice Shoes'], items['Red Scarf']]
+    }
+  })
+  .then(function (response) {
+    console.log(response.status);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+  // Enable these to test deletion
+  /*
+  await instance.post('/user/deleteoutfit', {id: outfitid})
+  .then(function (response) {
+    console.log(response.status);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+  await instance.post('/user/deletearticle', {id: items['Nice Shoes']})
+  .then(function (response) {
+    console.log(response.status);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+  */
+
+
 
 } else {
   await instance.post('/user/sendarticle', {

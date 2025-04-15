@@ -10,7 +10,7 @@ const MongoDBStore = ConnectMongoDBSession(session);
 // Set up connection
 const db = await mongoose.connect('mongodb://127.0.0.1:27017/wardrobe');
 
-var currentUserId = null;
+//var currentUserID = null;
 
 // Set up expresss app and routes
 const app = express();
@@ -30,10 +30,10 @@ app.use(session({
     store: new MongoDBStore({
         uri: 'mongodb://127.0.0.1:27017/wardrobe',
         collection: 'sessions'
-    }),
-    expires: new Date(Date.now() + 3600000) // an hour
+    })
 }));
 
+// Runs before every request
 app.use(async (req, res, next) => {
     console.log(req.session);
     if (mongoose.connection.readyState != 1) {
@@ -41,11 +41,16 @@ app.use(async (req, res, next) => {
         return;
     }
     await setUpTestDB().catch(err => console.log(err));
-    next();
+    next()
 });
 
 app.get('/', (req, res) => {
     res.send('Root')
+    req.session.reload(async () => {
+        console.log(req.session.test);
+    });
+    req.session.test = "sometest" + Math.floor(Math.random()*1000);
+    req.session.save();
 })
   
 // Listen message
@@ -70,26 +75,16 @@ app.use('/reset', async (req, res) => {
 
 // return the current user's wardrobe
 app.get('/user/wardrobe', async (req, res) => {
-    console.log(req.session.testvar);
-    const wardrobe = await findAllInWardrobe(currentUserId, Article);
-    res.json(wardrobe);
-    req.session.testvar = "requested wardrobe";
-});
-
-app.post('/user/wardrobe/specific', async (req, res) => {
-    const wardrobe = await findAllInWardrobe(currentUserId, Article, req.body.wardrobeName);
+    console.log("request:" + req.session.currentUserID);
+    const wardrobe = await findAllInWardrobe(req.session.currentUserID, Article);
     res.json(wardrobe);
 });
 
-app.post('/user/wardrobe/specific/outfits', async (req, res) => {
-    const wardrobe = await findAllInWardrobe(currentUserId, Outfit, req.body.wardrobeName);
-    res.json(wardrobe);
-});
 
 app.post('/user/wardrobe/createnew', async (req, res) => {
     // need the new wardrobe name
     // should not create a new one if already exists.
-    const usr = await User.findOne({loginid : currentUserId});
+    const usr = await User.findOne({loginid : req.session.currentUserID});
     usr.wardrobeCollection.forEach(id => {
         if (Wardrobe.exists({_id : id, name : req.body.wardrobeName})) {
             res.send("Wardrobe already exists.");
@@ -106,35 +101,140 @@ app.post('/user/wardrobe/createnew', async (req, res) => {
 
 // Setup, return the sample user's wardrobe, use that to display the base64 encoded image.
 app.get('/user/wardrobe/showexample', async (req, res) => {
-    const wardrobe = await findAllInWardrobe(currentUserId, Article);
+    const wardrobe = await findAllInWardrobe(req.session.currentUserID, Article);
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from('<img style="width: 200px" src="data:image/png;base64,' +
     wardrobe[1].photo + '"'
     +' alt="Photo of a piece of clothing" />'));
 });
 
+// Outfit showing
+
+app.get('/user/wardrobe/outfits', async (req, res) => {
+    res.json(await findAllInWardrobe(req.session.currentUserID, Outfit));
+});
+
 // Object creation
 
 app.post('/user/sendarticle', async (req, res) => {
     console.log(req.session.testvar);
-    res.send('Article information recieved!');
-    const article = await insertIntoWardrobe(currentUserId, Article, req.body.articleData ?? req.body.data);
+    const article = await insertIntoWardrobe(req.session.currentUserID, Article, req.body.articleData ?? req.body.data);
     req.session.testvar = "an article was recieved last";
+    req.session.save();
+    res.send('Article information recieved!');
 });
 
 app.post('/user/createoutfit', async (req, res) => {
     console.log(req.session.testvar)
+    const outfit = await insertIntoWardrobe(req.session.currentUserID, Outfit, req.body.articleData ?? req.body.data);
+    req.session.testvar = "an outfit was created last";
+    req.session.save();  
     res.send('Outfit information recieved!');
-    const outfit = await insertIntoWardrobe(currentUserId, Outfit, req.body.articleData ?? req.body.data);
-    req.session.testvar = "an outfit was created last";  
 });
 
-// Signups
+ app.post('/user/updatearticle', async (req, res) => {
+    console.log(req.session.testvar);
+    res.send('Article update information recieved!');
+    
+    const item = await Article.findByIdAndUpdate(req.body.id, req.body.data);
 
+    req.session.testvar = "an article was updated last";
+    req.session.save();  
+});
+
+app.post('/user/updateoutfit', async (req, res) => {
+    console.log(req.session.testvar)
+    res.send('Outfit update information recieved!');
+
+    const item = await Outfit.findByIdAndUpdate(req.body.id, req.body.data);
+
+    req.session.testvar = "an outfit was updated last";
+    req.session.save();  
+});
+
+app.post('/user/updateoutfit/additems', async (req, res) => {
+    console.log(req.session.testvar)
+    res.send('Outfit item addition information recieved!');
+
+    const item = await Outfit.findById(req.body.id);
+    req.body.optional_articles.forEach(i => item.optional_articles.push(i));
+    req.body.required_articles.forEach(i => item.required_articles.push(i));
+    await item.save();
+
+    req.session.testvar = "an outfit was updated last";
+    req.session.save();  
+});
+
+app.post('/user/updateoutfit/removeitems', async (req, res) => {
+    console.log(req.session.testvar)
+    res.send('Outfit item removal information recieved!');
+
+    const item = await Outfit.findById(req.body.id);
+    req.body.optional_articles.forEach(i => {
+        var index = item.optional_articles.findIndex(i);
+        if (index != -1) item.optional_articles.splice(index,1);
+    });
+    req.body.required_articles.forEach(i => {
+        var index = item.required_articles.findIndex(i);
+        if (index != -1) item.required_articles.splice(index,1);
+    });
+    await item.save();
+    req.session.testvar = "an outfit was updated last";
+    req.session.save();  
+});
+
+
+app.post('/user/deletearticle', async (req, res) => {
+    console.log(req.session.testvar);
+
+    const item = await Article.findByIdAndDelete(req.body.id);
+    const war = await Wardrobe.findById(item.wardrobeID);
+
+    var index = war.articleTable.findIndex(i => i == item.id);
+    if (index != -1) war.articleTable.splice(index,1);
+
+    war.outfitTable.forEach(async (outfitid)=>{
+        const found = await Outfit.findById(outfitid).exec();
+
+        index = found.optional_articles.findIndex(i => i == item.id);
+        if (index != -1) found.optional_articles.splice(index,1);
+
+        index = found.required_articles.findIndex(i => i == item.id);
+        if (index != -1) found.required_articles.splice(index,1);
+
+        found.save();
+    });
+    war.save();
+
+    req.session.testvar = "a deletion request was done last.";
+    req.session.save(); 
+    res.send('deletion request recieved!');
+});
+
+app.post('/user/deleteoutfit', async (req, res) => {
+    console.log(req.session.testvar);
+
+    const item = await Outfit.findByIdAndDelete(req.body.id);
+    const war = await Wardrobe.findById(item.wardrobeID);
+
+    var index = war.outfitTable.findIndex(i => i == item.id);
+    if (index != -1) war.outfitTable.splice(index, 1);
+    
+    console.log(war);
+    war.save();
+
+    req.session.testvar = "a deletion request was done last.";
+    req.session.save(); 
+    res.send('deletion request recieved!');
+});
+
+
+
+// Signups
 app.post('/user/signup/emailpassword', async (req, res) => {
-    /* const foundUser = await User.findOne({ loginid : req.body.loginid });
-    if (!foundUser) makeUser(req.body);
-    currentUserId = req.body.loginid; */
+
+    req.session.currentUserID = req.body.uid;
+    req.session.save();
 
     await createUser({
         username : req.body.providerData.displayName,
@@ -143,22 +243,15 @@ app.post('/user/signup/emailpassword', async (req, res) => {
         profilepicURL : req.body.providerData.photoURL,
         createdate : req.body.createdAt,
     });
-
-    currentUserId = req.body.uid;
 
 });
 
 app.post('/user/login/emailpassword', async (req, res) => {
-    console.log("login emailpassword:\n");
-    console.log(req.body);
-    currentUserId = req.body.uid;
+    req.session.currentUserID = req.body.uid;
+    req.session.save();
 });
 
 app.post('/user/login/google', async (req, res) => {
-
-    console.log("create/login google\n");
-    console.log(req.body);
-
     await createUser({
         username : req.body.providerData.displayName,
         loginid : req.body.uid,
@@ -167,49 +260,22 @@ app.post('/user/login/google', async (req, res) => {
         createdate : req.body.createdAt,
     });
 
-    currentUserId = req.body.uid;
-
-   /*  const foundUser = await User.findOne({ useremail : req.body.email });
-    if (!foundUser) {
-        makeUser(req.body);
-    } else {
-        foundUser.username = req.body.username;
-        foundUser.email = req.body.email;
-        foundUser.loginid = req.body.loginid;
-        foundUser.profilepicURL = req.body.profilePicture;
-        foundUser.createdate = req.body.createdAt;
-        var foundWardrobe = await Wardrobe.findOne({
-            userID: foundUser._id, 
-        });
-        if (!foundWardrobe) {
-            foundWardrobe = await new Wardrobe({ userID: foundUser._id, name: "My Wardrobe" });
-            foundUser.wardrobeCollection.push(foundWardrobe._id);
-            await foundWardrobe.save();
-        }
-        await foundUser.save();
-    }
-
-    currentUserId = req.body.loginid; */
-    
+    req.session.currentUserID = req.body.uid;
+    req.session.save();
 });
 
 app.get('/user/whois', async (req, res) => {
-    res.json(currentUserId);
+    res.json(req.session.currentUserID);
 });
 
 app.get('/user/logout', async (req, res) => {
-    currentUserId = null;
-});
-
-// Outfit showing
-
-app.get('/user/wardrobe/outfits', async (req, res) => {
-    res.json(await findAllInWardrobe(currentUserId, Outfit));
+    req.session.currentUserID = null;
+    req.session.save();
 });
 
 
 async function resetDB() {
-    await mongoose.connection.dropDatabase();
+    await mongoose.connection.db.dropDatabase();
 }
 
 // set up a database with a test user, wardrobe, etc.
@@ -516,7 +582,6 @@ async function createUser(userInfo) {
 
     if (usr.wardrobeCollection.length == 0) {
         const w_id = await createEmptyWardrobe(usr._id);
-        console.log(w_id);
         usr.wardrobeCollection.push(w_id);
         await usr.save();
     }
