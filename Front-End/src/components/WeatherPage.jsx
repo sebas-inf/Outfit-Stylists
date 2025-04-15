@@ -6,27 +6,42 @@ import { CurrentWeatherCard } from './CurrentWeatherCard';
 const API_KEY = 'aecda3d849f7d8b7a6a60a0a3ad7a95b'; 
 
 function WeatherPage() {
-  const [coordinates, setCoordinates] = useState({ latitude: 29.65, longitude: -82.32 });
+  
+  const [coordinates, setCoordinates] = useState({ latitude: 0, longitude: 0 });
+  const [city, setCity] = useState(""); 
   const [currentData, setCurrentData] = useState({});
   const [loading, setLoading] = useState(true);
   const [timezone, setTimezone] = useState("");
 
+  
   const handleLocationSearch = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/3.0/onecall?lat=${coordinates.latitude}&lon=${coordinates.longitude}&units=imperial&appid=${API_KEY}`
+      
+      const geoResponse = await axios.get(
+        `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`
       );
-      setCurrentData(response.data.current);
-      setTimezone(response.data.timezone);
-      setLoading(false);
+      if (geoResponse.data && geoResponse.data.length > 0) {
+        const { lat, lon } = geoResponse.data[0];
+        setCoordinates({ latitude: lat, longitude: lon });
+        
+        const weatherResponse = await axios.get(
+          `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&units=imperial&appid=${API_KEY}`
+        );
+        setCurrentData(weatherResponse.data.current);
+        setTimezone(weatherResponse.data.timezone);
+        setLoading(false);
+      } else {
+        console.error("No result");
+      }
     } catch (error) {
-      console.error("Error fetching weather data:", error);
+      console.error("Error", error);
     }
   };
 
-  const handleChange = (e) => {
-    setCoordinates({ ...coordinates, [e.target.name]: Number(e.target.value) });
+ 
+  const handleCityChange = (e) => {
+    setCity(e.target.value);
   };
 
   return (
@@ -34,33 +49,19 @@ function WeatherPage() {
       <h1>Weather</h1>
       <form onSubmit={handleLocationSearch} style={{ marginBottom: '20px' }}>
         <input
-          placeholder="Latitude"
-          name="latitude"
-          type="number"
-          step="0.01"
-          min="-90"
-          max="90"
+          placeholder="Enter city name"
+          name="city"
+          type="text"
           required
-          value={coordinates.latitude}
-          onChange={handleChange}
-          style={{ padding: '10px', marginRight: '10px' }}
-        />
-        <input
-          placeholder="Longitude"
-          name="longitude"
-          type="number"
-          step="0.01"
-          min="-180"
-          max="180"
-          required
-          value={coordinates.longitude}
-          onChange={handleChange}
+          value={city}
+          onChange={handleCityChange}
           style={{ padding: '10px', marginRight: '10px' }}
         />
         <button type="submit" style={{ padding: '10px 20px' }}>
           Search
         </button>
       </form>
+      
       {!loading && <CurrentWeatherCard weatherData={currentData} timezone={timezone} />}
     </div>
   );
