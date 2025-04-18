@@ -10,6 +10,7 @@ import OutfitsGrid from './components/OutfitsGrid';
 import OutfitDetail from './components/OutfitDetail';
 import OutfitForm from './components/OutfitForm';
 import WeatherPage from './components/WeatherPage'; 
+import OutfitSuggestion from './components/OutfitSuggestion';
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/outfits" element={<OutfitsGrid />} />
         <Route path="/outfit/:id" element={<OutfitDetail />} />
         <Route path="/weather" element={<WeatherPage />} /> 
+        <Route path="/suggest-outfit" element={<OutfitSuggestion />} />
         <Route path="/" element={<Navigate to="/home" replace />} />
       </Routes>
     </Router>

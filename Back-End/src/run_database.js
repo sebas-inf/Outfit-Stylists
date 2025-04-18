@@ -183,6 +183,72 @@ app.post('/user/updateoutfit/removeitems', async (req, res) => {
     req.session.save();  
 });
 
+app.post('/api/outfit', (request, response) => {
+    console.log("Received request for /api/outfit");
+    const {prompt, has_images } = request.body;
+
+    if (!prompt) {
+        return response.status(400).json({ error: "Missing prompt in request body"})
+    }
+
+    // Add arguments for python script
+    const pythonArgs = [prompt];
+    if (has_images === true) {
+        pythonArgs.push('--with-images');
+    }
+
+    const env = { ...process.env }; // clones current environment by passing OPENAI_API_KEY to child process environment
+
+    console.log(`Executing: python openai_helper.py ${pythonArgs.map(a => `"${a}"`).join(' ')}`);
+    const pythonProcess = spawn('python', ['openai_helper.py', ...pythonArgs], {cwd: __dirname, env: env}); //run in the same directory
+
+    let stdoutData = '';
+    let stderrData = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+        stdoutData += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        stderrData += data.toString();
+        console.error(`Python stderr: ${data}`); // log python script errors
+    });
+
+    pythonProcess.on('close', (code) => {
+        console.log(`Python processed exited with code ${code}`);
+        if (stderrData) {
+            console.error(`Python script error output:\n${stderrData}`);
+            try {
+                const result = JSON.parse(stdoutData);
+                if (result && result.error) {
+                    return response.status(500).json(result);
+                }
+                return response.status(500).json({error: "Python execution failed.", details: stderrData});
+            } catch (parseError) {
+                return response.status(500).json({error: "Python execution failed & output parsine error.", details: stderrData});
+            }
+        } else if (code != 0 ) {
+            return response.status(500).json({ error: `Python script exited with code ${code}`});
+        } else {
+            try {
+                const result = JSON.parse(stdoutData);
+                response.json(result);
+            } catch (e) {
+                console.error(`Error parsing Python output: ${e}`);
+                console.error(`Output: ${stdoutData}`);
+                response.status(500).json({error: "Failed to parse python script"});
+            }
+        }
+    });
+
+    pythonProcess.on('error', (err) => {
+        console.error(`Failed to start python process: ${err}`);
+        response.status(500).json({error: "Failed to execute python script."});
+    });
+
+
+});
+
 
 app.post('/user/deletearticle', async (req, res) => {
     console.log(req.session.testvar);
