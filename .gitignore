@@ -430,3 +430,6 @@ node_modules/motion-utils/dist/es/time-conversion.mjs
 node_modules/motion-utils/dist/es/velocity-per-second.mjs
 node_modules/motion-utils/dist/es/warn-once.mjs
 Back-End/src/message.js
+
+venv/
+venv/*
