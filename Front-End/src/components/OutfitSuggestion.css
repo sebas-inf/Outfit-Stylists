@@ -1,0 +1,139 @@
+.suggestion-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 20px auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.suggestion-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.suggestion-form input[type="text"],
+.suggestion-form textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.suggestion-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.image-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.image-toggle label {
+  cursor: pointer;
+}
+
+.suggestion-form button {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-form button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.suggestion-form button:not(:disabled):hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 15px;
+}
+
+.suggestions-display {
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.suggestions-display h3 {
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.suggestion-category {
+  margin-bottom: 20px;
+}
+
+.suggestion-category h4 {
+  margin-bottom: 10px;
+  color: #444;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.suggestion-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.suggestion-item {
+  text-align: center;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.suggestion-item-image {
+  width: 100%;
+  max-width: 100px;
+  height: auto;
+  aspect-ratio: 1 / 1; 
+  object-fit: cover; 
+  border-radius: 4px;
+  margin-bottom: 8px;
+  border: 1px solid #eee;
+}
+
+.suggestion-item-no-image {
+  width: 100px;
+  height: 100px;
+  background-color: #eee;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  margin: 0 auto 8px auto;
+  font-size: 0.8rem;
+}
+
+.suggestion-item p {
+  font-size: 0.9rem;
+  color: #333;
+  margin: 0;
+}
