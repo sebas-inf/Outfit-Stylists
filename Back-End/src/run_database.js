@@ -7,6 +7,14 @@ import {User, Wardrobe, Article, Outfit, ObjID} from './schemata.mjs';
 import ConnectMongoDBSession from 'connect-mongodb-session';
 const MongoDBStore = ConnectMongoDBSession(session);
 
+if (process.argv.length != 4) {
+    console.log("Please run this script with user and password to the database");
+    process.exit(1);
+}
+
+// Set up connection
+const db = await mongoose.connect('mongodb+srv://'+ process.argv[2] +':'+ process.argv[3] +'@outfits.rke3rxe.mongodb.net/wardrobe?retryWrites=true&w=majority&appName=Outfits');
+
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function connectWithRetry(uri, retries = 5, delay = 2000) {
@@ -27,11 +35,6 @@ async function connectWithRetry(uri, retries = 5, delay = 2000) {
         }
     }
 }
- 
-// Set up connection
-const db = await mongoose.connect('mongodb://127.0.0.1:27017/wardrobe');
-
-//var currentUserID = null;
 
 // Set up expresss app and routes
 const app = express();
