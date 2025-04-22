@@ -1,24 +1,63 @@
-import React, { useState } from 'react';
-import { getOutfitSuggestions } from '../api';
-import Header from './Header'; 
+import React, { useState, useEffect } from 'react'; // Import useEffect
+import { getOutfitSuggestions, fetchClothingItems } from '../api'; // Import fetchClothingItems
+import Header from './Header';
 import './OutfitSuggestion.css';
 
 const OutfitSuggestion = () => {
   const [location, setLocation] = useState(''); // for user location
   const [weather, setWeather] = useState(''); // what the weather is
-  const [ownedItems, setOwnedItems] = useState(''); // what clothes they have
   const [withImages, setWithImages] = useState(true); // show images or not?
   const [suggestions, setSuggestions] = useState(null); // the suggestions we get back
-  const [loading, setLoading] = useState(false); // show loading spinner
-  const [error, setError] = useState(null); // if something went wrong
+  const [loading, setLoading] = useState(false); // show loading spinner for suggestions
+  const [error, setError] = useState(null); // if something went wrong with suggestions
+
+  // State for wardrobe items
+  const [wardrobeItems, setWardrobeItems] = useState([]);
+  const [wardrobeLoading, setWardrobeLoading] = useState(false);
+  const [wardrobeError, setWardrobeError] = useState(null);
+
+  // Effect to load wardrobe items on mount
+  useEffect(() => {
+    const loadWardrobe = async () => {
+      setWardrobeLoading(true);
+      setWardrobeError(null);
+      try {
+        const items = await fetchClothingItems(); // Fetch items from API
+        setWardrobeItems(items || []); // Ensure it's an array
+      } catch (err) {
+        console.error("Error fetching wardrobe items:", err); // Log error
+        setWardrobeError(err.message || "Failed to load wardrobe.");
+      } finally {
+        setWardrobeLoading(false);
+      }
+    };
+    loadWardrobe();
+  }, []); // Empty dependency array means run once on mount
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Check if wardrobe is ready before proceeding
+    if (wardrobeLoading) {
+      setError("Wardrobe is still loading. Please wait.");
+      return;
+    }
+    if (wardrobeError) {
+      setError(`Cannot suggest outfit due to wardrobe error: ${wardrobeError}`);
+      return;
+    }
+    if (!Array.isArray(wardrobeItems)) {
+      setError("Wardrobe data is not available or invalid.");
+      console.error("Wardrobe items is not an array:", wardrobeItems); // Log for debugging
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuggestions(null);
 
-    const prompt = `I live in ${location}, it's ${weather}; I own ${ownedItems}.`;
+    // Construct owned items string from fetched wardrobe data
+    const ownedItemsString = wardrobeItems.map(item => item.name).join(', ') || 'nothing specific'; // Handle empty wardrobe
+    const prompt = `I live in ${location}, it's ${weather}; I own ${ownedItemsString}.`;
     const promptData = { prompt, with_images: withImages };
 
     try {
@@ -63,12 +102,6 @@ const OutfitSuggestion = () => {
             onChange={(e) => setWeather(e.target.value)}
             required
           />
-          <textarea
-            placeholder="Owned Clothing Items (e.g., blue jeans, white sneakers)"
-            value={ownedItems}
-            onChange={(e) => setOwnedItems(e.target.value)}
-            required
-          />
           {/* checkbox for images */}
           <div className="image-toggle">
             <label>
@@ -86,8 +119,13 @@ const OutfitSuggestion = () => {
           </button>
         </form>
 
+        {/* Wardrobe loading/error messages */}
+        {wardrobeLoading && <p>Loading your wardrobe...</p>}
+        {wardrobeError && <p className="error-message">Wardrobe Error: {wardrobeError}</p>}
+
+        {/* Suggestion loading/error messages */}
         {loading && <p>Loading suggestions...</p>}
-        {error && <p className="error-message">Error: {error}</p>}
+        {error && <p className="error-message">Suggestion Error: {error}</p>}
 
         {/* show the suggestions here if we have them */}
         {suggestions && (
@@ -101,21 +139,27 @@ const OutfitSuggestion = () => {
                 {/* check if items is array */}
                 {Array.isArray(items) && items.length > 0 ? (
                   <div className="suggestion-items">
-                    {/* loop through items in category */}
-                    {items.filter(item => item && item.name).map((item, index) => (
+                    {/* loop through items in category - removed filter, added conditional rendering */}
+                    {items.map((item, index) => (
                       <div key={index} className="suggestion-item">
-                        {/* show item image */}
-                        {item.image_b64 ? (
-                          <img
-                            src={`data:image/png;base64,${item.image_b64}`}
-                            alt={item.name}
-                            className="suggestion-item-image"
-                          />
+                        {withImages ? (
+                          // Render with image (item is object)
+                          <>
+                            {item.image_b64 ? (
+                              <img
+                                src={`data:image/png;base64,${item.image_b64}`}
+                                alt={item.name}
+                                className="suggestion-item-image"
+                              />
+                            ) : (
+                              <div className="suggestion-item-no-image">No Image</div>
+                            )}
+                            <p>{item.name}</p>
+                          </>
                         ) : (
-                          <div className="suggestion-item-no-image">No Image</div>
+                          // Render without image (item is string)
+                          <p>{item}</p>
                         )}
-                        {/* show item name */}
-                        <p>{item.name}</p>
                       </div>
                     ))}
                   </div>
