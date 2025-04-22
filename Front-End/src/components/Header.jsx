@@ -49,6 +49,9 @@ const Header = ({
         <button onClick={() => navigate('/weather')} className="header-button">
           Weather
         </button>
+        <button onClick={() => navigate('/suggest-outfit')} className="header-button"> {}
+          Weather
+        </button>
       </div>
       <div className="header-right">
         {isCreatingOutfit && (

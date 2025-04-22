@@ -25,7 +25,7 @@ const App = () => {
         <Route path="/outfits" element={<OutfitsGrid />} />
         <Route path="/outfit/:id" element={<OutfitDetail />} />
         <Route path="/weather" element={<WeatherPage />} /> 
-        <Route path="/suggest-outfit" element={<OutfitSuggestion />} />
+        <Route path="/suggest-outfit" element={<OutfitSuggestion />} /> 
         <Route path="/" element={<Navigate to="/home" replace />} />
       </Routes>
     </Router>

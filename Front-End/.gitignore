@@ -6,8 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-.env
-
+*.env
+Back-End/src/.env
 node_modules
 dist
 dist-ssr
@@ -23,6 +23,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+*.env*
 
 # Backend stuff
 Back-End/sample_database/*

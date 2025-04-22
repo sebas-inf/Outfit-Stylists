@@ -26,6 +26,29 @@ export async function sendClothingItem(itemData) {
   return response.text();
 }
 
+export async function getOutfitSuggestions(promptData) {
+  const response = await fetch(`${API_BASE_URL}/api/outfit`, {
+    method: 'POST',
+    headrs: {
+      'Content-Type': 'applications/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify(promptData)
+  });
+
+  if (!response.ok) {
+    let errorDetails = 'Failed to fetch suggestion';
+    try {
+      const errorData = await response.json();
+      errorDetails = errorData.error || errorData.details || errorDetails;
+    } catch {
+
+    }
+    throw new Error (`${errorDetails} (Status: ${response.status})`);
+  }
+  return response.json();
+}
+
 export async function fetchOutfits() {
   const response = await fetch("http://localhost:3000/user/wardrobe/outfits", {credentials: 'include'});
   if (!response.ok) throw new Error("Failed to fetch outfits");
