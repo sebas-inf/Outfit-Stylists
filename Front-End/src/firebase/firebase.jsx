@@ -4,7 +4,7 @@ import { getFirestore } from "firebase/firestore";
 
 // Your Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyCAdHRo92BRQAqwjqi-5NrkYkIl3_F094U",
+    apiKey: "AIzaSyBpW4SwIfmMwxnsbP4E7IfR-OAIO_Ubehs",
     authDomain: "outfit-stylists.firebaseapp.com",
     projectId: "outfit-stylists",
     storageBucket: "outfit-stylists.firebasestorage.app",

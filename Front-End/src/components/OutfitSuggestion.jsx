@@ -97,7 +97,7 @@ const OutfitSuggestion = () => {
           {/* TODO make weather input better? */}
           <input
             type="text"
-            placeholder="Current Weather (e.g., 85°F and sunny)"
+            placeholder="Current Weather (e.g., 85Â°F and sunny)"
             value={weather}
             onChange={(e) => setWeather(e.target.value)}
             required
