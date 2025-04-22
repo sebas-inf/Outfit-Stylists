@@ -12,8 +12,9 @@ if (process.argv.length != 4) {
     process.exit(1);
 }
 
+const sessionuri = 'mongodb+srv://'+ process.argv[2] +':'+ process.argv[3] +'@outfits.rke3rxe.mongodb.net/wardrobe?retryWrites=true&w=majority&appName=Outfits';
 // Set up connection
-const db = await mongoose.connect('mongodb+srv://'+ process.argv[2] +':'+ process.argv[3] +'@outfits.rke3rxe.mongodb.net/wardrobe?retryWrites=true&w=majority&appName=Outfits');
+const db = await mongoose.connect(sessionuri);
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -53,7 +54,7 @@ app.use(session({
     resave: true,
     saveUninitialized : true,
     store: new MongoDBStore({
-        uri: 'mongodb://127.0.0.1:27017/wardrobe',
+        uri: sessionuri,
         collection: 'sessions'
     })
 }));
