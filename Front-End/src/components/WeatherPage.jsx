@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { CurrentWeatherCard } from './CurrentWeatherCard'; 
+import { CurrentWeatherCard } from './CurrentWeatherCard';
+import Header from './Header';
 
 const API_KEY = 'aecda3d849f7d8b7a6a60a0a3ad7a95b'; 
 
@@ -45,24 +46,27 @@ function WeatherPage() {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Weather</h1>
-      <form onSubmit={handleLocationSearch} style={{ marginBottom: '20px' }}>
-        <input
-          placeholder="Enter city name"
-          name="city"
-          type="text"
-          required
-          value={city}
-          onChange={handleCityChange}
-          style={{ padding: '10px', marginRight: '10px' }}
-        />
-        <button type="submit" style={{ padding: '10px 20px' }}>
-          Search
-        </button>
-      </form>
-      
-      {!loading && <CurrentWeatherCard weatherData={currentData} timezone={timezone} />}
+    <div>
+      <Header />
+      <div style={{ padding: '20px' }}>
+        <h1>Weather</h1>
+        <form onSubmit={handleLocationSearch} style={{ marginBottom: '20px' }}>
+          <input
+            placeholder="Enter city name"
+            name="city"
+            type="text"
+            required
+            value={city}
+            onChange={handleCityChange}
+            style={{ padding: '10px', marginRight: '10px' }}
+          />
+          <button type="submit" style={{ padding: '10px 20px' }}>
+            Search
+          </button>
+        </form>
+        
+        {!loading && <CurrentWeatherCard weatherData={currentData} timezone={timezone} />}
+      </div>
     </div>
   );
 }
