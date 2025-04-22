@@ -7,6 +7,27 @@ import {User, Wardrobe, Article, Outfit, ObjID} from './schemata.mjs';
 import ConnectMongoDBSession from 'connect-mongodb-session';
 const MongoDBStore = ConnectMongoDBSession(session);
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function connectWithRetry(uri, retries = 5, delay = 2000) {
+    for (let i = 1; i<= retries; i++) {
+        try {
+            console.log(`Attempting MongoDB connection (Attempt ${i}/${retries})...`);
+            const db = await mongoose.connect(uri);
+            console.log("MongoDB connection successful!");
+            return db;
+        } catch (error) {
+            console.error("MongoDB connection attempts failed.");
+            if (i === retries) {
+                console.error("All MongoDB connection attempts failed.")
+                throw error;
+            }
+            console.log(`Retrying in ${delay / 1000} seconds...`)
+            await sleep(delay);
+        }
+    }
+}
+ 
 // Set up connection
 const db = await mongoose.connect('mongodb://127.0.0.1:27017/wardrobe');
 

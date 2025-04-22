@@ -1,11 +1,20 @@
-import os, openai, base64, requests
+import os, base64
+from openai import OpenAI, AuthenticationError
 from typing import Dict, List
 import json
+try:
+    client = OpenAI()
 
-api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    print("Warning: OPENAI_API_KEY environment variable not set.")
-openai.api_key = api_key
+except AuthenticationError:
+    print("Fatal Error: OpenAI Authentication Error. Check your OPENAI_API_KEY environment variable.")
+    print(json.dumps({"error": "OpenAI Authentication Error: Invalid API Key"}))
+    exit(1)
+except Exception as e:
+    print(f"Fatal Error: could not initialize OpenAI client: {e}")
+    print(json.dumps({"error": f"OpenAI Client Initialization Failed: {e}"}))
+    exit(1)
+
+
 
 
 def _generate_clothes_list(prompt: str) -> Dict[str, List[str]]:
@@ -16,7 +25,7 @@ def _generate_clothes_list(prompt: str) -> Dict[str, List[str]]:
         "Each key maps to a list of item names."
     )
     try:
-        res = openai.ChatCompletion.create(
+        res = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_msg},
@@ -28,7 +37,7 @@ def _generate_clothes_list(prompt: str) -> Dict[str, List[str]]:
 
         content = res.choices[0].message.content
         return json.loads(content)
-    except openai.AuthenticationError:
+    except AuthenticationError:
         print("OpenAI Authentication Error: Check your API key.")
         return {"error": "OpenAI Authentication Error"}
     except Exception as e:
@@ -40,7 +49,7 @@ def _generate_clothes_list(prompt: str) -> Dict[str, List[str]]:
 def _image_for_item(item: str) -> str:
     """Return base64‑encoded PNG for *item*."""
     try:
-        img = openai.Image.create(
+        img = client.images.create(
             model="dall-e-3",
             prompt=f"Studio photo of {item} on white background, clear view, professional quality",
             n=1,
@@ -49,7 +58,7 @@ def _image_for_item(item: str) -> str:
         )
 
         return img.data[0].b64_json
-    except openai.AuthenticationError:
+    except AuthenticationError:
         print("OpenAI Authentication Error: Check your API key.")
         return ""
     except Exception as e:

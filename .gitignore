@@ -433,3 +433,5 @@ Back-End/src/message.js
 
 venv/
 venv/*
+
+*.env*
