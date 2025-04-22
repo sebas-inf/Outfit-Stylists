@@ -1,4 +1,3 @@
-// src/components/ClothingGrid.jsx
 import React from 'react';
 import ClothingCard from './ClothingCard';
 import './ClothingGrid.css';

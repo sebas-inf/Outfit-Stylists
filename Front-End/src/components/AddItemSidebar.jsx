@@ -3,8 +3,6 @@ import { sendClothingItem } from '../api';
 import './AddItemSidebar.css';
 
 const defaultFormData = {
-  username: '',
-  wardrobeName: '',
   name: '',
   description: '',
   category: '',
@@ -46,8 +44,6 @@ const AddItemSidebar = ({ isOpen, toggleAddItemSidebar }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const payload = {
-      username: formData.username,
-      wardrobeName: formData.wardrobeName,
       articleData: {
         name: formData.name,
         description: formData.description,
@@ -61,7 +57,6 @@ const AddItemSidebar = ({ isOpen, toggleAddItemSidebar }) => {
 
     try {
       await sendClothingItem(payload);
-      // Reset form and close sidebar on success
       setFormData(defaultFormData);
       setPreviewSrc('');
       toggleAddItemSidebar();
@@ -86,22 +81,6 @@ const AddItemSidebar = ({ isOpen, toggleAddItemSidebar }) => {
           <h2>Add New Clothing Item</h2>
         </div>
         <form onSubmit={handleSubmit} className="add-item-form">
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            name="wardrobeName"
-            placeholder="Wardrobe Name"
-            value={formData.wardrobeName}
-            onChange={handleChange}
-            required
-          />
           <input
             type="text"
             name="name"
@@ -144,7 +123,7 @@ const AddItemSidebar = ({ isOpen, toggleAddItemSidebar }) => {
           <input
             type="number"
             name="usage"
-            placeholder="Enter number of times worn"
+            placeholder="Times Worn"
             value={formData.usage}
             onChange={handleChange}
             required

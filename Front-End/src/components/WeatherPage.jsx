@@ -49,7 +49,9 @@ function WeatherPage() {
     <div>
       <Header />
       <div style={{ padding: '20px' }}>
-        <h1>Weather</h1>
+      <h2 className="outfits-heading" style={{ padding: '20px 0', textAlign: 'left' }}>
+            Weather
+          </h2>
         <form onSubmit={handleLocationSearch} style={{ marginBottom: '20px' }}>
           <input
             placeholder="Enter city name"
@@ -64,7 +66,7 @@ function WeatherPage() {
             Search
           </button>
         </form>
-        
+
         {!loading && <CurrentWeatherCard weatherData={currentData} timezone={timezone} />}
       </div>
     </div>
