@@ -50,7 +50,7 @@ const Header = ({
           Weather
         </button>
         <button onClick={() => navigate('/suggest-outfit')} className="header-button"> {}
-          Weather
+          Suggest Outfit
         </button>
       </div>
       <div className="header-right">
